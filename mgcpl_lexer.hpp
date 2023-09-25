@@ -58,14 +58,16 @@ class Lexer {
             return LETSYM;
         if (word == "print")
             return PRINTSYM;
+        if (word == "goto")
+            return GOTO;
         if (word == "true")
             return TRUESYM;
         if (word == "false")
             return FALSESYM;
         if (word == "then")
-            return THEN;
-        if (word == "END")
-            return END;
+            return THENSYM;
+        if (word == "end")
+            return ENDSYM;
         if (names_map.find(word) == names_map.end()) {
             names_map.put(word, IDSYM);
             return IDSYM;

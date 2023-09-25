@@ -129,7 +129,7 @@ int evalTree(node* x) {
     if (x == nullptr) 
         return 0;
 
-    if (x != nullptr && isLeaf(x))
+    if (isLeaf(x))
         return x->value;
     int lval = evalTree(x->left);
     int rval = evalTree(x->right);

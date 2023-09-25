@@ -46,6 +46,39 @@ class MGCBasic {
         }
     }
 
+    void handleIdSym() {
+        bool isExpression;
+        if (lookahead == IDSYM) {
+            string _id = curr->str;
+            string _total = "";
+            match(IDSYM);
+            if (match(ASSIGNSYM)) {
+                while (lookahead != SEMICOLON) {
+                    if (lookahead == IDSYM) {
+                        if (valueMap.find(curr->str) == valueMap.end()) {
+                            cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
+                        } else {
+                            _total += valueMap[curr->str];
+                        }
+                    } else if (lookahead == NUM) {
+                        _total += curr->str;
+                    } else if (lookahead == ADD || lookahead == SUB || lookahead == MUL || lookahead == DIV) {
+                        isExpression = true;
+                        _total += curr->str;
+                    }
+                    nexttoken();
+                }
+                if (isExpression) {
+                    //cout<<"eval: "<<_total<<endl;
+                    _total = to_string(eval(_total));
+                    //cout<<"Eval'd to: "<<_total<<endl;
+                }
+                valueMap.put(_id, _total);
+                //cout<<"Assigned: "<<_id<<" = "<<valueMap[_id]<<endl;
+            }
+        }
+    }
+
     bool handleIf() {
         if (match(IFSYM)) {
             if (match(LPAREN)) {
@@ -93,6 +126,15 @@ class MGCBasic {
                 }
                 cout<<value<<endl;
             }
+            if (lookahead == IDSYM) {
+                string value;
+                while (lookahead != SEMICOLON) {
+                    if (lookahead == IDSYM)
+                        value += valueMap[curr->str] + " ";
+                    nexttoken();
+                }
+                cout<<value<<endl;
+            }
         }
     }
 
@@ -108,13 +150,23 @@ class MGCBasic {
     }
 
     void interpret(vector<TokenList*>& lines) {
+        bool stepping = false;
         int nextLine = 0;
         bool result = false;
         int ip = 0; //instruction pointer;
         for(int lp = 0; lp < lines.size(); lp++) {
             TokenList* lineStream = lines[lp];
             initparser(lineStream);
-            switch(lineStream->tok) {
+            if (lookahead == NUM) {
+                nexttoken();
+            } else {
+                cout<<"Error: no line number supplied."<<endl;
+            }
+           
+            switch(lookahead) {
+                case IDSYM:
+                    handleIdSym();
+                    break;
                 case LETSYM:
                     handleLet();
                     break;
@@ -123,11 +175,21 @@ class MGCBasic {
                     break;
                 case IFSYM:
                     result = handleIf();
-                    if (!result) lp++;
+                    //cout<<"Handle if: "<<((result) ? "true":"false")<<endl;
+                    if (result == false) {
+                        nextLine = lp;
+                        while (nextLine < lines.size() && lines[nextLine]->next->tok != ENDSYM) nextLine++;
+                        lp = nextLine;
+                    }
                     break;
                 case GOTO:
-                    nextLine = handleGoto(lp);
-                    lp = nextLine;
+                    nexttoken();
+                    for (int i = 0; i < lines.size(); i++) {
+                        if (lines[i]->str == curr->str) {
+                            lp = i-1;
+                            break;
+                        }
+                    }
                     break;
                 default:
                     break;
@@ -136,7 +198,7 @@ class MGCBasic {
     }
 public:
     MGCBasic() {
-        
+
     }
     void runProgram(vector<string>& program) {
         Lexer lex;

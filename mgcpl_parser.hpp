@@ -24,6 +24,7 @@ void nexttoken() {
         lookahead = curr->tok;
     } else {
         cout<<"Out of tokens."<<endl;
+        exit(0);
     }
 }
 
