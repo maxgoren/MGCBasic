@@ -8,19 +8,18 @@ Syntax is derived from the "Tiny BASIC" specification, which is so kind as to in
 BNF grammar, alot which i ignored, the rest of which i probably misunderstood.
 
 Currently supported(i use the term loosely):
-  - assign integers to variable names using 'let var := <number>'
-  - yes, assignment is done with :=, my implementation my choice :D
+  - assign integers to variable names using 'let var := <number>' (yes, assignment is done with :=, my implementation my choice :D)
+  - variables can be updated without using 'let' once theyve been initialized
   - you can use whatever line numbering scheme you want, but i suggest they be ordered and ascending.
   - print statements can print strings in single quotes, or variable names. You cant combine the two, and every print automatically inclues the new line automatically.
   - Loops are performed via goto. Take that Dijkstra! (Just kidding. Thanks for the shunting yard algorithm, i make use of it here) coincidentally, this is the only reason i included line numbering.
   - evaluate infix math expressions, expressions can intermix variable names with numbers (gasp!)
   
-    
-Currently not supported:
-  - Clear, Run, List - this makes sense, because there is no REPL (brb, going to implement one)
-  - Error handling
-  - Lots of stuff actually. Pretty much anything not showin in the example program below
-  - This project is somewhat tongue in cheek, and im surprised it works at all, let alone as it does.
+  - REPL Features:
+    - enter lines of code one by one
+    - can change previously entered line by entering new line with same line number.
+    - .run to enter the program you've entered,
+    - .list to show you the code it will execute
 
 
   
@@ -45,6 +44,7 @@ example program:
                     };
            MGCBasic mgc;
            mgc.runProgram(program);
+           mgc.REPL()
            return 0;
      }
      max@MaxGorenLaptop:~/mgcpl$ g++ -g mgcpl.cpp
@@ -55,6 +55,14 @@ example program:
      19 
      20 
      done.
+     > 10 let first := 10 ;
+     > 20 let second := 40 ;
+     > 30 if (first < second) then
+     > 40 print 'it is!' ;
+     > 50 end ;
+     > .run
+     it is!
+     > .done
      max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
 
 
