@@ -18,5 +18,6 @@ int main() {
                     };
     MGCBasic mgc;
     mgc.runProgram(program);
+    mgc.REPL();
     return 0;
 }

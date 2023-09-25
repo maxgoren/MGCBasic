@@ -205,6 +205,35 @@ public:
         vector<TokenList*> tokenized = lex.analyze(program);
         interpret(tokenized);
     }
+
+    void REPL() {
+        Lexer lex;
+        bool running = true;
+        string inputline;
+        vector<TokenList*> program;
+        vector<string> source;
+        while (running) {
+            cout<<"> ";
+            getline(cin, inputline);
+            if (inputline == ".done")
+                break;
+            else if (inputline == ".run") {
+                interpret(program);
+            } else if (inputline == ".list") {
+                for (string l : source) {
+                    cout<<l<<endl;
+                }
+            } else {
+                TokenList* line = lex.repl_tokenize(inputline);
+                if (line->tok != NUM) {
+                    cout<<"Error: must inclue line number."<<endl;
+                } else {
+                    program.push_back(line);
+                    source.push_back(inputline);
+                }
+            }
+        }
+    }
 };
 
 #endif

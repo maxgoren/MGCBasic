@@ -119,6 +119,7 @@ class Lexer {
         return lines;
     }
 
+
     void printLexemes(TokenList *list) {
         for (auto token = list; token != nullptr; token = token->next) {
             cout << "<[" << endl;
@@ -143,6 +144,43 @@ public:
     }
     void showLexemes(TokenList* tokens) {
         printLexemes(tokens);
+    }
+    TokenList* repl_tokenize(string& curr) {
+            TokenList head;
+            TokenList *lst = &head;
+            for (int i = 0; i < curr.size(); i++) {
+                int lpos = i;
+                int rpos = i;
+                while (rpos < curr.length() && curr[rpos++] != ' ') {
+                    if (curr[rpos - 1] == '(' || curr[rpos - 1] == '\'')
+                        break;
+                    if (curr[rpos] == '\'' || curr[rpos] == ')')
+                        break;
+                }
+                if (curr[rpos - 1] == ' ') {
+                    rpos--;
+                    i = rpos;
+                }
+                else
+                    i = rpos - 1;
+                string piece = curr.substr(lpos, rpos - lpos);
+                if (piece.size() > 0) {
+                    Token tok = getToken(piece);
+                    TokenList *nt = new TokenList;
+                    lst->next = nt;
+                    nt->str = piece;
+                    nt->lineno = atoi(head.next->str.c_str());
+                    nt->lpos = lpos;
+                    nt->rpos = rpos;
+                    nt->tok = tok;
+                    nt->str = piece;
+                    nt->next = nullptr;
+                    lst->next = nt;
+                    lst = nt;
+                }
+        }
+        auto x = head.next;
+        return x;
     }
 };
 
