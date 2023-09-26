@@ -232,6 +232,7 @@ public:
     }
 
     void REPL() {
+        int autoline = 10;
         Lexer lex;
         bool running = true;
         string inputline;
@@ -252,6 +253,11 @@ public:
                     cout<<l.second<<endl;
                 }
             } else {
+                if (!isdigit(inputline[0])) {
+                    string nil = to_string(autoline) + " " + inputline;
+                    inputline = nil;
+                    autoline += 10;
+                }
                 TokenList* line = lex.repl_tokenize(inputline);
                 if (line->tok != NUM) {
                     cout<<"Error: must inclue line number."<<endl;
