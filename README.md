@@ -1,15 +1,17 @@
 # MGCBasic
-A *very* basic BASIC interpreter.
+An embeddable BASIC interpreter with REPL-like environment.
 
-It has a REPL BASIC environement, or you can pass code supplied as a vector of strings as shown below.
-I told you this was *very* basic.
+### About
+MGC Basic is a simple interpreter for a dialet of the BASIC language. It has a REPL-like BASIC environement reminiscent of Level I BASIC on a TRS-80.
+Alternatively, you can pass basic code supplied as a vector of strings to the interpreter as shown below.
 
-Syntax is *derived* from the "Tiny BASIC" specification(ahem, wikipedia page), which is so kind as to include a complete
-BNF grammar, alot which i ignored, the rest of which i adapted poorly.
+Syntax is *derived* from the "Tiny BASIC" language specification(ahem, wikipedia page), which is so kind as to include a BNF grammar.
+
+This project is still in its early stages and should not be considered "stable".
 
 ### Currently supported:
   - assign integers to variable names using 'let var := <number>' (yes, assignment is done with :=, my implementation my choice :D)
-  - variables can be updated without using 'let' once theyve been initialized
+  - variables can be updated without using 'let' once theyve been initialized(declared variables must be initialized to a value at time of decleration.
   - you can use whatever line numbering scheme you want, but i suggest they be ordered and ascending.
   - print statements can print strings in single quotes, or variable names. every print statement inclues the new line automatically.
   - Loops are performed via goto. Take that Dijkstra! (Just kidding. Thanks for the shunting yard algorithm, i make use of it here.) coincidentally, this is the only reason i included line numbering.
