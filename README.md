@@ -33,8 +33,8 @@ BNF grammar, alot which i ignored, the rest of which i adapted poorly.
      -------------------------------------
      repl> let a:= 2 ;
      repl> 10 let a := 2 ;        
-     repl> 20 let b := 3 ;
-     repl> 30 print c ;
+     repl> let b := 3 ;
+     repl> print c ;
      repl> 25 let c := a + b ;
      repl> .list
      10 let a := 2 ;
