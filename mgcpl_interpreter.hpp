@@ -36,8 +36,9 @@ using std::endl;
 
 class MGCBasic {
     private:
+    IterableMap<string, string> valueMap;
     void handleLet() {
-        bool isExpression;
+        bool isExpression = false;
         if (match(LETSYM)) {
           if (lookahead == IDSYM) {
             string _id = curr->str;
@@ -60,19 +61,16 @@ class MGCBasic {
                     nexttoken();
                 }
                 if (isExpression) {
-                    //cout<<"eval: "<<_total<<endl;
                     _total = to_string(eval(_total));
-                    //cout<<"Eval'd to: "<<_total<<endl;
                 }
                 valueMap.put(_id, _total);
-                //cout<<"Assigned: "<<_id<<" = "<<valueMap[_id]<<endl;
             }
           }
         }
     }
 
     void handleIdSym() {
-        bool isExpression;
+        bool isExpression = false;
         if (lookahead == IDSYM) {
             string _id = curr->str;
             string _total = "";
@@ -83,23 +81,20 @@ class MGCBasic {
                         if (valueMap.find(curr->str) == valueMap.end()) {
                             cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
                         } else {
-                            _total += valueMap[curr->str];
+                            _total += valueMap[curr->str] + " ";
                         }
                     } else if (lookahead == NUM) {
-                        _total += curr->str;
+                        _total += curr->str + " ";
                     } else if (lookahead == ADD || lookahead == SUB || lookahead == MUL || lookahead == DIV) {
                         isExpression = true;
-                        _total += curr->str;
+                        _total += curr->str + " ";
                     }
                     nexttoken();
                 }
                 if (isExpression) {
-                    //cout<<"eval: "<<_total<<endl;
                     _total = to_string(eval(_total));
-                    //cout<<"Eval'd to: "<<_total<<endl;
                 }
                 valueMap.put(_id, _total);
-                //cout<<"Assigned: "<<_id<<" = "<<valueMap[_id]<<endl;
             }
         }
     }
@@ -204,12 +199,9 @@ class MGCBasic {
                     if (result == false) {
                         nextLine = lp;
                         while (nextLine < lines.size() && lines[nextLine]->next->tok != ENDSYM) {
-                           if (lines[nextLine]->next->tok != ELSESYM) {
-                                hasElse = true;
-                                break;
-                           } else hasElse = false;
                             nextLine++;
                         }
+                        lp = nextLine;
                     }
                     break;
                 case GOTO:
@@ -241,14 +233,16 @@ public:
         Lexer lex;
         bool running = true;
         string inputline;
-        avlmap<string, TokenList*> program;
-        avlmap<string, string> source;
+        avlmap<int, TokenList*> program;
+        avlmap<int, string> source;
         while (running) {
             cout<<"repl> ";
             getline(cin, inputline);
             if (inputline == ".done")
                 break;
             else if (inputline == ".run") {
+                //I want to refactor the entire flow to eliminate the use of vectors, except for embedded use
+                //I believe avlmap could be used. It would make GOTO easier, but IF harder..
                 vector<TokenList*> asVec;
                 for (auto t : program)
                     asVec.push_back(t.second);
@@ -261,11 +255,11 @@ public:
                 if (!isdigit(inputline[0])) {
                     string nil = to_string(autoline) + " " + inputline;
                     inputline = nil;
-                    autoline += 10;
+                    autoline += 5;
                 }
                 TokenList* line = lex.repl_tokenize(inputline);
-                program.put(line->str, line);
-                source.put(line->str, inputline);
+                program.put(atoi(line->str.c_str()), line);
+                source.put(atoi(line->str.c_str()), inputline);
             }
         }
     }

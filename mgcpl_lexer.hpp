@@ -33,76 +33,50 @@ using std::endl;
 
 class Lexer {
     private:
-    IterableMap<string, Token> names_map;
+    IterableMap<string, Token> vars_map;
+    IterableMap<string, Token> keywords;
+    void initKeywords() {    
+        keywords["("] = LPAREN;   
+        keywords[")"] = RPAREN;
+        keywords["'"] = QUOTESYM;
+        keywords[";"] = SEMICOLON;
+        keywords["+"] = ADD;
+        keywords["-"] = SUB;
+        keywords["*"] = MUL;
+        keywords["/"] = DIV;
+        keywords[" "] = WHITESPACE;
+        keywords["\t"] = TAB;
+        keywords["=="] = EQ;
+        keywords["!="] = NOTEQ;
+        keywords[">"] = GT;
+        keywords["<"] = LT;
+        keywords[">="] = GTEQ;
+        keywords["<="] = LTEQ;
+        keywords[":="] = ASSIGNSYM;
+        keywords["if"] = IFSYM;
+        keywords["let"] = LETSYM;
+        keywords["print"] = PRINTSYM;
+        keywords["goto"] = GOTO;
+        keywords["true"] = TRUESYM;
+        keywords["false"] = FALSESYM;
+        keywords["then"] = THENSYM;
+        keywords["end"] = ENDSYM;
+        keywords["input"] = INPUT;
+    }
     Token getToken(string word) {
-        // single character tokens
-        switch (word[0]) {
-        case '(':
-            return LPAREN;
-        case ')':
-            return RPAREN;
-        case '\'':
-            return QUOTESYM;
-        case ';':
-            return SEMICOLON;
-        case '+':
-            return ADD;
-        case '-':
-            return SUB;
-        case '*':
-            return MUL;
-        case '/':
-            return DIV;
-        case ' ':
-            return WHITESPACE;
-        case '\t':
-            return TAB;
-        }
-        if (word == "==")
-            return EQ;
-        if (word == ">")
-            return GT;
-        if (word == ">=")
-            return GTEQ;
-        if (word == "<")
-            return LT;
-        if (word == "<=")
-            return LTEQ;
-        if (word == "!=")
-            return NOTEQ;
-        if (word == ":=")
-            return ASSIGNSYM;
         if (isdigit(word[0])) {
             return NUM;
         }
-        if (word == "if")
-            return IFSYM;
-        if (word == "let")
-            return LETSYM;
-        if (word == "print")
-            return PRINTSYM;
-        if (word == "goto")
-            return GOTO;
-        if (word == "true")
-            return TRUESYM;
-        if (word == "false")
-            return FALSESYM;
-        if (word == "then")
-            return THENSYM;
-        if (word == "end")
-            return ENDSYM;
-        if (word == "input")
-            return INPUT;
-        if (names_map.find(word) == names_map.end()) {
-            names_map.put(word, IDSYM);
+        if (keywords.find(word) != keywords.end())
+            return keywords[word];
+        if (vars_map.find(word) == vars_map.end()) {
+            vars_map.put(word, IDSYM);
             return IDSYM;
-        }
-        else {
+        } else {
             return IDSYM;
         }
         return ERROR;
     }
-
     vector<TokenList*> tokenize(vector<string>& program) {
         vector<TokenList*> lines;
         for (int lineno = 0; lineno < program.size(); lineno++) {
@@ -157,7 +131,7 @@ class Lexer {
     }
 public:
     Lexer() {
-
+        initKeywords();
     }
     ~Lexer() {
 

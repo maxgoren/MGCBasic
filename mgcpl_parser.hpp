@@ -1,14 +1,11 @@
 #ifndef mgcpl_parser_hpp
 #define mgcpl_parser_hpp
 #include <iostream>
-#include "hashtable.hpp"
 #include "mgcpl_globals.hpp"
 using std::string;
 using std::cout;
 using std::endl;
 
-
-IterableMap<string, string> valueMap;
 
 TokenList* curr;
 Token lookahead;
