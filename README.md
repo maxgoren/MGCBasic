@@ -1,11 +1,11 @@
 # MGCBasic
 A *very* basic BASIC interpreter.
 
-As it stands, code should be passed to the interpreter as a vector of strings.
+It has a REPL BASIC environement, or you can pass code supplied as a vector of strings as shown below.
 I told you this was *very* basic.
 
-Syntax is derived from the "Tiny BASIC" specification, which is so kind as to include a complete
-BNF grammar, alot which i ignored, the rest of which i probably misunderstood.
+Syntax is *derived* from the "Tiny BASIC" specification(ahem, wikipedia page), which is so kind as to include a complete
+BNF grammar, alot which i ignored, the rest of which i adapted poorly.
 
 Currently supported(i use the term loosely):
   - assign integers to variable names using 'let var := <number>' (yes, assignment is done with :=, my implementation my choice :D)
@@ -14,12 +14,16 @@ Currently supported(i use the term loosely):
   - print statements can print strings in single quotes, or variable names. You cant combine the two, and every print automatically inclues the new line automatically.
   - Loops are performed via goto. Take that Dijkstra! (Just kidding. Thanks for the shunting yard algorithm, i make use of it here) coincidentally, this is the only reason i included line numbering.
   - evaluate infix math expressions, expressions can intermix variable names with numbers (gasp!)
+  - REPL - this is more like an oldschool basic environment as youd find on the TRS-80, etc. than a modern REPL. for example, it doesnt evaluate when you hit enter, you have to specficially tell it to execute.
   
   - REPL Features:
     - enter lines of code one by one
-    - can change previously entered line by entering new line with same line number.
-    - .run to enter the program you've entered,
-    - .list to show you the code it will execute
+    - can edit previously entered line by entering new line with same line number.
+    - if you omit line numbers, they will be assigned automatically
+    - .list will show you your program entered so far, including line numbers.
+    - .run to execute the program you've entered
+    - .done to exit the REPL
+    
 
 
   
