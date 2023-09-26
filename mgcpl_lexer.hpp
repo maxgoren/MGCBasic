@@ -24,7 +24,7 @@ SOFTWARE.
 #ifndef mgcpl_lexer_hpp
 #define mgcpl_lexer_hpp
 #include <iostream>
-#include "iterable_hashtable.hpp"
+#include "hashtable.hpp"
 #include "mgcpl_globals.hpp"
 using std::string;
 using std::cout;
@@ -91,6 +91,8 @@ class Lexer {
             return THENSYM;
         if (word == "end")
             return ENDSYM;
+        if (word == "input")
+            return INPUT;
         if (names_map.find(word) == names_map.end()) {
             names_map.put(word, IDSYM);
             return IDSYM;

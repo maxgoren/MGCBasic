@@ -28,7 +28,7 @@ SOFTWARE.
 #include "mgcpl_parser.hpp"
 #include "mgcpl_lexer.hpp"
 #include "eval_expr.hpp"
-#include "iterable_hashtable.hpp"
+#include "hashtable.hpp"
 #include "avlmap.hpp"
 using std::string;
 using std::cout;
@@ -146,7 +146,7 @@ class MGCBasic {
                 nexttoken();
                 string value;
                 while (lookahead != QUOTESYM) {
-                    value += curr->str;
+                    value += curr->str + " ";
                     nexttoken();
                 }
                 cout<<value<<endl;
@@ -179,6 +179,7 @@ class MGCBasic {
         int nextLine = 0;
         bool result = false;
         int ip = 0; //instruction pointer;
+        bool hasElse = false;
         for(int lp = 0; lp < lines.size(); lp++) {
             TokenList* lineStream = lines[lp];
             initparser(lineStream);
@@ -200,11 +201,15 @@ class MGCBasic {
                     break;
                 case IFSYM:
                     result = handleIf();
-                    //cout<<"Handle if: "<<((result) ? "true":"false")<<endl;
                     if (result == false) {
                         nextLine = lp;
-                        while (nextLine < lines.size() && lines[nextLine]->next->tok != ENDSYM) nextLine++;
-                        lp = nextLine;
+                        while (nextLine < lines.size() && lines[nextLine]->next->tok != ENDSYM) {
+                           if (lines[nextLine]->next->tok != ELSESYM) {
+                                hasElse = true;
+                                break;
+                           } else hasElse = false;
+                            nextLine++;
+                        }
                     }
                     break;
                 case GOTO:
@@ -259,12 +264,8 @@ public:
                     autoline += 10;
                 }
                 TokenList* line = lex.repl_tokenize(inputline);
-                if (line->tok != NUM) {
-                    cout<<"Error: must inclue line number."<<endl;
-                } else {
-                    program.put(line->str, line);
-                    source.put(line->str, inputline);
-                }
+                program.put(line->str, line);
+                source.put(line->str, inputline);
             }
         }
     }

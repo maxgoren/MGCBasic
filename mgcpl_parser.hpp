@@ -1,7 +1,7 @@
 #ifndef mgcpl_parser_hpp
 #define mgcpl_parser_hpp
 #include <iostream>
-#include "iterable_hashtable.hpp"
+#include "hashtable.hpp"
 #include "mgcpl_globals.hpp"
 using std::string;
 using std::cout;
