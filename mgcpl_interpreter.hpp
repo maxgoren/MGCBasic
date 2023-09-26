@@ -5,6 +5,7 @@
 #include "mgcpl_lexer.hpp"
 #include "eval_expr.hpp"
 #include "iterable_hashtable.hpp"
+#include "avlmap.hpp"
 using std::string;
 using std::cout;
 using std::endl;
@@ -210,26 +211,29 @@ public:
         Lexer lex;
         bool running = true;
         string inputline;
-        vector<TokenList*> program;
-        vector<string> source;
+        avlmap<string, TokenList*> program;
+        avlmap<string, string> source;
         while (running) {
             cout<<"> ";
             getline(cin, inputline);
             if (inputline == ".done")
                 break;
             else if (inputline == ".run") {
-                interpret(program);
+                vector<TokenList*> asVec;
+                for (auto t : program)
+                    asVec.push_back(t.second);
+                interpret(asVec);
             } else if (inputline == ".list") {
-                for (string l : source) {
-                    cout<<l<<endl;
+                for (auto l : source) {
+                    cout<<l.second<<endl;
                 }
             } else {
                 TokenList* line = lex.repl_tokenize(inputline);
                 if (line->tok != NUM) {
                     cout<<"Error: must inclue line number."<<endl;
                 } else {
-                    program.push_back(line);
-                    source.push_back(inputline);
+                    program.put(line->str, line);
+                    source.put(line->str, inputline);
                 }
             }
         }
