@@ -53,7 +53,10 @@ This project is still in its early stages and should not be considered "stable".
    - array support
    - string support
    - handle input
-
+   - print expressions
+   - expressions besides relop expressions inside if statements
+   - implement go sub, singline functions, and return
+   - *who knows*
   
 ### example program using vector of strings
 An example of supplying a program as a vector of strings. This makes it possible to use
@@ -90,10 +93,5 @@ MGCBasic as an embedded scripting language for your projects.
      done.
      max@MaxGorenLaptop:~/mgcpl$
 
-### Still to come
- - print expressions
- - expressions besides relop expressions inside if statements
- - implement go sub, singline functions, and return
- - *who knows*
 
 "She might be primitive, But I'm still Damn Proud!"
