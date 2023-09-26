@@ -47,6 +47,11 @@ BNF grammar, alot which i ignored, the rest of which i adapted poorly.
      repl> .done
      max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
 
+### still to come (in progress)
+   - array support
+   - string support
+   - handle input
+
   
 ### example program using vector of strings
 An example of supplying a program as a vector of strings. This makes it possible to use
