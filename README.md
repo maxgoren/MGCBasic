@@ -13,11 +13,10 @@ This project is still in its early stages and should not be considered "stable".
 ### Currently supported:
   - assign integers to variable names using 'let var := <number>' (yes, assignment is done with :=, my implementation my choice :D)
   - variables can be updated without using 'let' once theyve been initialized(declared variables must be initialized to a value at time of decleration.
-  - you can use whatever line numbering scheme you want, but i suggest they be ordered and ascending.
   - print statements can print strings in single quotes, or variable names. every print statement inclues the new line automatically.
-  - Loops are performed via goto. Take that Dijkstra! (Just kidding. Thanks for the shunting yard algorithm, i make use of it here.) coincidentally, this is the only reason i included line numbering.
-  - evaluate infix math expressions, expressions can intermix variable names with numbers (gasp!)
-  - REPL - this is more like an oldschool basic environment as youd find on the TRS-80, etc. than a modern REPL. for example, it doesnt evaluate when you hit enter, you have to specficially tell it to execute.
+  - Loops are performed via goto. Take that Dijkstra! (Just kidding. eval() wouldnt work without his shunting yard algorithm) 
+  - evaluate infix math expressions, expressions can intermix variable names with numbers 
+  - REPL - this is more like an oldschool basic environment as youd find on the TRS-80, etc. on early home computers, this was akin to the operating system.
   
     ### REPL Features:
     - enter lines of code one by one
@@ -32,9 +31,9 @@ This project is still in its early stages and should not be considered "stable".
    - array support
    - string support
    - handle input
-   - print expressions
+   - print expressions, intermix variables in print statements
    - expressions besides relop expressions inside if statements
-   - implement go sub, singline functions, and return
+   - implement gosub, singline functions, and return
    - *who knows*
     
  ### Using the REPL
@@ -91,7 +90,8 @@ This project is still in its early stages and should not be considered "stable".
      max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
 
 ### Loading & running programs from source file on the command line
-
+Of course, you dont need to use the REPL to load and run a program from source, simply invoke the interpreter with the filename as the first argument
+on the command line:
      max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$ ./mgcbasic fibonacci.bas 
      0  
      1  
