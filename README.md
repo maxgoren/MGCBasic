@@ -3,9 +3,10 @@ An embeddable BASIC interpreter with REPL-like environment.
 
 ### About
 MGC Basic is a simple interpreter for a dialet of the BASIC language. It has a REPL-like BASIC environement reminiscent of Level I BASIC on a TRS-80.
-Alternatively, you can pass basic code supplied as a vector of strings to the interpreter as shown below.
+Using the REPL you can load a program from a saved .bas file. Alternatively, you can pass basic code supplied as a vector of strings to the interpreter as shown below.
 
-Syntax is *derived* from the "Tiny BASIC" language specification(ahem, wikipedia page), which is so kind as to include a BNF grammar.
+The syntax is *derived* from the "Tiny BASIC" language specification(ahem, wikipedia page), which is so kind as to include a BNF grammar.
+I did convert it to lowercase however, because TYPING LIKE THIS GETS OLD FAST.
 
 This project is still in its early stages and should not be considered "stable".
 
@@ -20,6 +21,7 @@ This project is still in its early stages and should not be considered "stable".
   
     ### REPL Features:
     - enter lines of code one by one
+    - load source from file using .load <filename>
     - can edit previously entered line by entering new line with same line number.
     - if you omit line numbers, they will be assigned automatically
     - .list will show you your program entered so far, including line numbers.
