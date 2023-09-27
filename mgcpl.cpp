@@ -35,12 +35,12 @@ void banner() {
 
 int main(int argc, char* argv[]) {
     MGCBasic mgc;
-    if (argc < 1) {
+    if (argc < 2) {
         banner();
         mgc.REPL();
     } else {
         string filename = argv[1];
-        mgc.runFromFile("fibonacci.bas");
+        mgc.runFromFile(filename);
     }
     return 0;
 }

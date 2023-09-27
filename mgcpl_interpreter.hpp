@@ -162,8 +162,15 @@ class MGCBasic {
         }
     }
 
-    int handleGoto(int lp) {
-        return lp;
+    void handleInput() {
+        match(INPUT);
+        if (lookahead == IDSYM) {
+            string input;
+            getline(cin, input);
+            valueMap[curr->str] = input;
+        } else {
+            cout<<"Error: expected identifier on line: "<<curr->lineno<<", near "<<curr->str<<endl;
+        }
     }
 
     void printLineTokens(TokenList* st) {
@@ -197,6 +204,9 @@ class MGCBasic {
                     break;
                 case PRINTSYM:
                     handlePrint();
+                    break;
+                case INPUT:
+                    handleInput();
                     break;
                 case IFSYM:
                     result = handleIf();
@@ -232,7 +242,9 @@ class MGCBasic {
         string line;
         while (ifile.good()) {
             getline(ifile, line);
+#if !(_MSC_VER) 
             line.pop_back();
+#endif
             TokenList* tokenizedLine = lex.repl_tokenize(line);
             program.put(atoi(tokenizedLine->str.c_str()), tokenizedLine);
             source.put(atoi(tokenizedLine->str.c_str()), line);
