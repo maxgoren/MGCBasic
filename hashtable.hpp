@@ -205,7 +205,7 @@ class IterableMap {
         }
         V& operator[](K key) {
             if (find(key) == end()) {
-                put(key, (V)0);
+                put(key, V());
             }
             int idx = hasher()(key) % maxn;
             int m = 1;

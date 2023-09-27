@@ -50,6 +50,12 @@ class MGCBasic {
             match(IDSYM);
             if (match(ASSIGNSYM)) {
                 while (lookahead != SEMICOLON) {
+                    if (lookahead == LPAREN) {
+                        _total += " ( ";
+                    }
+                    if (lookahead == RPAREN) {
+                        _total += " ) ";
+                    }
                     if (lookahead == IDSYM) {
                         if (valueMap.find(curr->str) == valueMap.end()) {
                             cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
@@ -60,7 +66,7 @@ class MGCBasic {
                         _total += curr->str;
                     } else if (lookahead == ADD || lookahead == SUB || lookahead == MUL || lookahead == DIV) {
                         isExpression = true;
-                        _total += curr->str;
+                        _total += " " + curr->str + " ";
                     }
                     nexttoken();
                 }
@@ -81,6 +87,12 @@ class MGCBasic {
             match(IDSYM);
             if (match(ASSIGNSYM)) {
                 while (lookahead != SEMICOLON) {
+                    if (lookahead == LPAREN) {
+                        _total += " ( ";
+                    }
+                    if (lookahead == RPAREN) {
+                        _total += " ) ";
+                    }
                     if (lookahead == IDSYM) {
                         if (valueMap.find(curr->str) == valueMap.end()) {
                             cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
@@ -144,7 +156,7 @@ class MGCBasic {
             if (lookahead == QUOTESYM) {
                 nexttoken();
                 string value;
-                while (lookahead != QUOTESYM) {
+                while (lookahead != QUOTESYM && lookahead != SEMICOLON && curr->next != nullptr) {
                     value += curr->str + " ";
                     nexttoken();
                 }
@@ -152,7 +164,7 @@ class MGCBasic {
             }
             if (lookahead == IDSYM) {
                 string value;
-                while (lookahead != SEMICOLON) {
+                while (lookahead != SEMICOLON && curr->next != nullptr) {
                     if (lookahead == IDSYM)
                         value += valueMap[curr->str] + " ";
                     nexttoken();
