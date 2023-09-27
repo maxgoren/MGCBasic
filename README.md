@@ -27,6 +27,15 @@ This project is still in its early stages and should not be considered "stable".
     - .list will show you your program entered so far, including line numbers.
     - .run to execute the program you've entered
     - .done to exit the REPL
+
+  ### still to come (in progress)
+   - array support
+   - string support
+   - handle input
+   - print expressions
+   - expressions besides relop expressions inside if statements
+   - implement go sub, singline functions, and return
+   - *who knows*
     
  ### Using the REPL
  below is an example session showing the REPL in action, you can see that lines can be entered "out of order", and that
@@ -81,16 +90,22 @@ This project is still in its early stages and should not be considered "stable".
      repl> .done
      max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
 
-### still to come (in progress)
-   - array support
-   - string support
-   - handle input
-   - print expressions
-   - expressions besides relop expressions inside if statements
-   - implement go sub, singline functions, and return
-   - *who knows*
+### Loading & running programs from source file on the command line
+
+     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$ ./mgcbasic fibonacci.bas 
+     0  
+     1  
+     1  
+     2  
+     3  
+     5  
+     8  
+     13 
+     21 
+     34 
+     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
   
-### example program using vector of strings
+### Example program using vector of strings
 An example of supplying a program as a vector of strings. This makes it possible to use
 MGCBasic as an embedded scripting language for your projects.
       
