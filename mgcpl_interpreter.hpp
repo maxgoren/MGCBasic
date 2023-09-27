@@ -25,6 +25,7 @@ SOFTWARE.
 #ifndef mgcpl_interpreter_hpp
 #define mgcpl_interpreter_hpp
 #include <iostream>
+#include <fstream>
 #include "mgcpl_parser.hpp"
 #include "mgcpl_lexer.hpp"
 #include "eval_expr.hpp"
@@ -218,6 +219,17 @@ class MGCBasic {
             }
         }
     }
+    vector<string> readSourceFromFile(string filename) {
+        ifstream ifile;
+        ifile.open(filename, ios::in);
+        string line;
+        vector<string> pg;
+        while (ifile.good()) {
+            getline(ifile, line);
+            pg.push_back(line);
+        }
+        return pg;
+    }
 public:
     MGCBasic() {
 
@@ -250,6 +262,16 @@ public:
             } else if (inputline == ".list") {
                 for (auto l : source) {
                     cout<<l.second<<endl;
+                }
+            } else if (inputline.substr(0, 5) == ".load") {
+                string filename = inputline.substr(6);
+                vector<string> fromFile = readSourceFromFile(filename);
+                cout<<filename<<": "<<endl;
+                for (string s : fromFile) {
+                    s.pop_back();
+                    TokenList* line = lex.repl_tokenize(s);
+                    program.put(atoi(line->str.c_str()), line);
+                    source.put(atoi(line->str.c_str()), s);
                 }
             } else {
                 if (!isdigit(inputline[0])) {
