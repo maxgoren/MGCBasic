@@ -33,9 +33,14 @@ void banner() {
     cout<<"-------------------------------------"<<endl;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     MGCBasic mgc;
-    banner();    
-    mgc.REPL();
+    if (argc < 1) {
+        banner();
+        mgc.REPL();
+    } else {
+        string filename = argv[1];
+        mgc.runFromFile("fibonacci.bas");
+    }
     return 0;
 }

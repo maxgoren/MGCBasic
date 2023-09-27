@@ -37,6 +37,9 @@ using std::endl;
 
 class MGCBasic {
     private:
+    Lexer lex;
+    avlmap<int, TokenList*> program;
+    avlmap<int, string> source;
     IterableMap<string, string> valueMap;
     void handleLet() {
         bool isExpression = false;
@@ -219,15 +222,26 @@ class MGCBasic {
             }
         }
     }
-    vector<string> readSourceFromFile(string filename) {
+    void readSourceFromFile(string filename) {
         ifstream ifile;
         ifile.open(filename, ios::in);
+        if (!ifile.is_open()) {
+            cout<<"Error: could not open "<<filename<<endl;
+            exit(0);
+        }
         string line;
-        vector<string> pg;
         while (ifile.good()) {
             getline(ifile, line);
-            pg.push_back(line);
+            line.pop_back();
+            TokenList* tokenizedLine = lex.repl_tokenize(line);
+            program.put(atoi(tokenizedLine->str.c_str()), tokenizedLine);
+            source.put(atoi(tokenizedLine->str.c_str()), line);
         }
+    }
+    vector<TokenList*> prepForInterp() {
+        vector<TokenList*> pg;
+        for (auto t : program)
+            pg.push_back(t.second);
         return pg;
     }
 public:
@@ -235,18 +249,21 @@ public:
 
     }
     void runProgram(vector<string>& program) {
-        Lexer lex;
         vector<TokenList*> tokenized = lex.analyze(program);
         interpret(tokenized);
     }
 
+    void runFromFile(string filename) {
+        readSourceFromFile(filename);
+        vector<TokenList*> r2r = prepForInterp();
+        interpret(r2r);
+    }
+
     void REPL() {
         int autoline = 10;
-        Lexer lex;
         bool running = true;
         string inputline;
-        avlmap<int, TokenList*> program;
-        avlmap<int, string> source;
+        
         while (running) {
             cout<<"repl> ";
             getline(cin, inputline);
@@ -254,25 +271,17 @@ public:
                 break;
             else if (inputline == ".run") {
                 //I want to refactor the entire flow to eliminate the use of vectors, except for embedded use
-                //I believe avlmap could be used. It would make GOTO easier, but IF harder..
-                vector<TokenList*> asVec;
-                for (auto t : program)
-                    asVec.push_back(t.second);
-                interpret(asVec);
+                //I believe avlmap could be used for the whole enchillada. It would make GOTO cleaner, but IF harder..
+                vector<TokenList*> r2r = prepForInterp();
+                interpret(r2r);
             } else if (inputline == ".list") {
                 for (auto l : source) {
                     cout<<l.second<<endl;
                 }
             } else if (inputline.substr(0, 5) == ".load") {
                 string filename = inputline.substr(6);
-                vector<string> fromFile = readSourceFromFile(filename);
-                cout<<filename<<": "<<endl;
-                for (string s : fromFile) {
-                    s.pop_back();
-                    TokenList* line = lex.repl_tokenize(s);
-                    program.put(atoi(line->str.c_str()), line);
-                    source.put(atoi(line->str.c_str()), s);
-                }
+                readSourceFromFile(filename);
+                cout<<filename<<": loaded."<<endl;
             } else {
                 if (!isdigit(inputline[0])) {
                     string nil = to_string(autoline) + " " + inputline;
