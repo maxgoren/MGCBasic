@@ -21,9 +21,9 @@ This project is still in its early stages and should not be considered "stable".
   
     ### REPL Features:
     - enter lines of code one by one
-    - load source from file using .load <filename>
-    - can edit previously entered line by entering new line with same line number.
-    - if you omit line numbers, they will be assigned automatically
+    - load source from file using '.load filename' 
+    - can edit lines by entering new line with same line number as line you want changed.
+    - if you omit line numbers, they will be assigned automatically (not when loading from file)
     - .list will show you your program entered so far, including line numbers.
     - .run to execute the program you've entered
     - .done to exit the REPL
@@ -49,7 +49,37 @@ This project is still in its early stages and should not be considered "stable".
      5
      repl> .quit
      repl> .done
-     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
+     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$ ./mgcbasic 
+     MGCBasic 0.1b (c) 2023 maxgcoding.com
+     -------------------------------------
+    repl> .load fibonacci.bas
+    fibonacci.bas: 
+    repl> .list
+    10 let prev := 0 ;
+    15 let curr := 1 ;
+    20 let next := curr + prev ;
+    25 print prev ;
+    30 print curr ;
+    35 prev := curr ;
+    40 curr := next ;
+    45 if (next < 50) then
+    50 print next ;
+    55 next := curr + prev ;
+    60 goto 35 ;
+    65 end
+    repl> .run
+    0 
+    1
+    1
+    2
+    3
+    5
+    8
+    13
+    21
+    34
+    repl> .done
+    max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
 
 ### still to come (in progress)
    - array support
