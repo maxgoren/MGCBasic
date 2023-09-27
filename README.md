@@ -92,18 +92,19 @@ This project is still in its early stages and should not be considered "stable".
 ### Loading & running programs from source file on the command line
 Of course, you dont need to use the REPL to load and run a program from source, simply invoke the interpreter with the filename as the first argument
 on the command line:
-     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$ ./mgcbasic fibonacci.bas 
-     0  
-     1  
-     1  
-     2  
-     3  
-     5  
-     8  
-     13 
-     21 
-     34 
-     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
+     
+      max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$ ./mgcbasic fibonacci.bas 
+      0  
+      1  
+      1  
+      2  
+      3  
+      5  
+      8  
+      13 
+      21 
+      34 
+      max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcpl$
   
 ### Example program using vector of strings
 An example of supplying a program as a vector of strings. This makes it possible to use
