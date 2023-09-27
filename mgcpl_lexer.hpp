@@ -91,13 +91,10 @@ class Lexer {
                         break;
                     if (curr[rpos] == '\'' || curr[rpos] == ')')
                         break;
+                    if (curr[rpos] == ';')
+                        break;
                 }
-                if (curr[rpos - 1] == ' ') {
-                    rpos--;
-                    i = rpos;
-                }
-                else
-                    i = rpos - 1;
+                i = rpos - 1;
                 string piece = curr.substr(lpos, rpos - lpos);
                 if (piece.size() > 0) {
                     Token tok = getToken(piece);
@@ -154,6 +151,8 @@ public:
                     if (curr[rpos - 1] == '(' || curr[rpos - 1] == '\'')
                         break;
                     if (curr[rpos] == '\'' || curr[rpos] == ')')
+                        break;
+                    if (curr[rpos] == ';')
                         break;
                 }
                 if (curr[rpos - 1] == ' ') {

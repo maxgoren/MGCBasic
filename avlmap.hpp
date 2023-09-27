@@ -262,6 +262,11 @@ class avlmap {
         int size() const {
             return N;
         }
+        void clear() {
+            cleanup(root);
+            root = nullptr;
+            N = 0;
+        }
         avlIterator begin() noexcept {
             node* x = root;
             while (x->left != nullptr) x = x->left;

@@ -33,6 +33,7 @@ SOFTWARE.
 using namespace std;
 
 
+
 struct node {
     char op;
     int value;
@@ -99,19 +100,21 @@ string infix2postfix(string expr) {
 
 //apply supplied operator op to operands a and b
 int applyOper(char op, int a, int b) {
+        double _a = (double)a;
+        double _b = (double)b;
         switch (op) {
             case '+':
                 //cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
-                return (a +b );
+                return (int)(_a + _b);
             case '*':
                 //cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
-                return (a * b);
+                return (int)(_a * _b);
             case '/':
                //cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
-                return (a / b);
+                return (int)(_a / _b);
             case '-':
                 //cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
-                return (a - b);
+                return (int)(_a - _b);
         }
     return 0;
 }
@@ -121,7 +124,6 @@ bool isLeaf(node* x) {
     return x->left == nullptr && x->right == nullptr;
 }
 
-int step = 1;
 
 //walk the tree postorder, evaluating the expression
 //and freeing the memory used by the tree.
@@ -134,8 +136,6 @@ int evalTree(node* x) {
     int lval = evalTree(x->left);
     int rval = evalTree(x->right);
     int res = applyOper(x->op, lval, rval);
-    //cout<<"Step "<<step<<": "<<endl;
-    step++;
     delete x;
     return res;
 }
@@ -167,7 +167,6 @@ node* buildExpressionTree(string expr) {
 //bottom up expression tree, and walking
 //the tree
 int eval(string expr) {
-    step = 1;
     //cout<<"------------------------"<<endl;
     //cout<<"Evaluating: "<<expr<<endl;
     expr = infix2postfix(expr);

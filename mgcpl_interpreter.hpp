@@ -245,6 +245,8 @@ class MGCBasic {
         }
     }
     void readSourceFromFile(string filename) {
+        program.clear();
+        source.clear();
         ifstream ifile;
         ifile.open(filename, ios::in);
         if (!ifile.is_open()) {
