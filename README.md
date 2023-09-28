@@ -17,6 +17,7 @@ This project is still in its early stages and should not be considered "stable".
   - Loops are performed via goto. Take that Dijkstra! (Just kidding. eval() wouldnt work without his shunting yard algorithm) 
   - evaluate infix math expressions, expressions can intermix variable names with numbers 
   - REPL - this is more like an oldschool basic environment as youd find on the TRS-80, etc. on early home computers, this was akin to the operating system.
+  - input data into a pre-declared variable (integers only)
   
     ### REPL Features:
     - enter lines of code one by one
@@ -25,16 +26,23 @@ This project is still in its early stages and should not be considered "stable".
     - if you omit line numbers, they will be assigned automatically (not when loading from file)
     - .list will show you your program entered so far, including line numbers.
     - .run to execute the program you've entered
-    - .done to exit the REPL
+    - .done, .exit, and .quit will all exit the REPL
+    - .clear to clear all entered code
+    - .tokens prints out the output from the lexer
+    - .symbols prints out any created variables and there current values
 
   ### still to come (in progress)
    - array support
    - string support
-   - handle input
    - print expressions, intermix variables in print statements
    - expressions besides relop expressions inside if statements
    - implement gosub, singline functions, and return
+   - possibly change all math to floating point to be able to handle fractions
    - *who knows*
+
+ ### Known Bugs
+   - the expression evaluator (embarassingly) isnt handling negative numbers very well.
+   - this is not so much a bug, but should be pointed out: MGCBasic only supports integer math. So, for example, trying to multiply something by a fraction will ALWAYS evaluate to zero.
     
  ### Using the REPL
  below is an example session showing the REPL in action, you can see that lines can be entered "out of order", and that
@@ -140,6 +148,25 @@ MGCBasic as an embedded scripting language for your projects.
      20 
      done.
      max@MaxGorenLaptop:~/mgcpl$
+
+### Debugging
+There are some limited debugging capabilities to show how your code is being interpreted.
+
+     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcbasic$ ./mgcbasic
+     MGCBasic 0.1b (c) 2023 maxgcoding.com
+     repl> let a := 1;
+     repl> .run 
+     repl> .tokens
+     <[  Token:   NUM,  line no: 10 , index:   0 - 2,  String:  10 ]>
+     <[  Token:   LETSYM,  line no: 10,  index:   3 - 6,  String:  let ]>
+     <[  Token:   IDSYM,  line no: 10,  index:   7 - 8,  String:  a ]>
+     <[  Token:   ASSIGNSYM,  line no: 10,  index:   9 - 11,  String:  := ]>
+     <[  Token:   NUM,  line no: 10,  index:   12 - 13,  String:  1 ]>
+     <[  Token:   SEMICOLON,  line no: 10,  index:   13 - 14,  String:  ; ]>
+     repl> .symbols
+     a: 1
+     repl> .exit
+     max@MaxGorenLaptop:/mnt/c/Users/mgoren/Desktop/pmpc/mgcbasic$ 
 
 
 "She might be primitive, But I'm still Damn Proud!"
