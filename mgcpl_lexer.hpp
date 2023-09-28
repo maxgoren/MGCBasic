@@ -64,6 +64,11 @@ class Lexer {
         keywords["input"] = INPUT;
     }
     Token getToken(string word) {
+        if (word.size() >= 2) {
+            if (word[0] == '-' && isdigit(word[1])) {
+                return NUM;
+            }
+        }
         if (isdigit(word[0])) {
             return NUM;
         }
@@ -119,10 +124,10 @@ class Lexer {
     void printLexemes(TokenList *list) {
         for (auto token = list; token != nullptr; token = token->next) {
             cout << "<[" << endl;
-            cout << " Token:   " << tokenNames[token->tok] << endl;
-            cout << " line no: " << token->lineno << endl;
-            cout << " index:   " << token->lpos << " - " << token->rpos << endl;
-            cout << " String:  " << token->str << endl;
+            cout << " Token:   " << tokenNames[token->tok] << ", ";
+            cout << " line no: " << token->lineno << ", ";
+            cout << " index:   " << token->lpos << " - " << token->rpos << ", ";
+            cout << " String:  " << token->str;
             cout << "]>" << endl;
         }
     }

@@ -29,6 +29,7 @@ SOFTWARE.
 #include <vector>
 #include <iomanip>
 #include <fstream>
+#include "mgcpl_globals.hpp"
 #include "Stack.hpp"
 using namespace std;
 
@@ -59,13 +60,12 @@ string prepExpr(string expr) {
     string fixed;
     for (int i = 0; i < expr.size(); i++) {
         fixed.push_back(expr[i]);
-        if (expr[i] == '(' || expr[i] == ')' || expr[i] == '-' 
+        if (expr[i] == '(' || expr[i] == ')' || (i < expr.size() && expr[i] == '-' && !isdigit(expr[i+1])) 
          || expr[i] == '+' || expr[i] == '*' || expr[i] == '/') {
             if (i < expr.size()-1 && expr[i+1] != ' ')
                 fixed.push_back(' ');
          }
-         if (i < expr.size() - 1 && (expr[i+1] == '(' || expr[i+1] == ')' || expr[i+1] == '-' 
-         || expr[i+1] == '+' || expr[i+1] == '*' || expr[i+1] == '/')) 
+         if (i < expr.size() - 1 && (expr[i+1] == '(' || expr[i+1] == ')' || expr[i+1] == '+' || expr[i+1] == '*' || expr[i+1] == '/')) 
                 fixed.push_back(' ');
     }
     return fixed;
@@ -74,15 +74,16 @@ string prepExpr(string expr) {
 //Dijkstra's shungting yard algorithm
 //converts infix expression to postfix
 string infix2postfix(string expr) {
-    expr = prepExpr(expr);
+    //expr = prepExpr(expr);
     Stack<char> sf;
     string postfix;
     for (int i = 0; i < expr.length(); i++) {
         if (expr[i] == ')') postfix.push_back(sf.pop());
-        else if (expr[i] == '+' || expr[i] == '*' ||expr[i] == '-' || expr[i] == '/' )
+        else if (expr[i] == '+' || expr[i] == '*' || (i < expr.size() - 1 && expr[i] == '-' && !isdigit(expr[i+1])) || expr[i] == '/' )
             sf.push(expr[i]);
         else {
             int e = i;
+            if (expr[e] == '-') postfix.push_back('-');
             while (isdigit(expr[e])) {
                 postfix.push_back(expr[e++]);
             }
@@ -100,27 +101,26 @@ string infix2postfix(string expr) {
 
 //apply supplied operator op to operands a and b
 int applyOper(char op, int a, int b) {
-        double _a = (double)a;
-        double _b = (double)b;
         switch (op) {
             case '+':
-                //cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
-                return (int)(_a + _b);
+                cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
+                return (a + b);
             case '*':
-                //cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
-                return (int)(_a * _b);
+                cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
+                return (a * b);
             case '/':
-               //cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
-                return (int)(_a / _b);
+                cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
+                return (a / b);
             case '-':
-                //cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
-                return (int)(_a - _b);
+                cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
+                return (a - b);
         }
     return 0;
 }
 
 //is this node a leaf node?
 bool isLeaf(node* x) {
+    if (x == nullptr) return true;
     return x->left == nullptr && x->right == nullptr;
 }
 
@@ -131,7 +131,7 @@ int evalTree(node* x) {
     if (x == nullptr) 
         return 0;
 
-    if (isLeaf(x))
+    if (x && isLeaf(x))
         return x->value;
     int lval = evalTree(x->left);
     int rval = evalTree(x->right);
@@ -152,8 +152,9 @@ node* buildExpressionTree(string expr) {
             x->left = sf.pop();
             sf.push(x);
         }
-        if (isdigit(expr[i])) {
+        if (isdigit(expr[i]) || (i < expr.size() - 1 && expr[i] == '-' && isdigit(expr[i+1]))) {
             int e = i;
+            if (i < expr.size() - 1 && expr[i] == '-' && isdigit(expr[i+1])) e++;
             while (isdigit(expr[++e]));
             sf.push(new node(atoi(expr.substr(i, e).c_str())));
             i = e;
@@ -168,10 +169,13 @@ node* buildExpressionTree(string expr) {
 //the tree
 int eval(string expr) {
     //cout<<"------------------------"<<endl;
-    //cout<<"Evaluating: "<<expr<<endl;
+    //cout<<"infix: "<<expr<<endl;
     expr = infix2postfix(expr);
     node* x = buildExpressionTree(expr);
-    return evalTree(x);
+    //cout<<"eval: "<<expr<<endl;
+    int result = evalTree(x);
+    //cout<<"Result: "<<result<<endl;
+    return result;
 }
 
 #endif

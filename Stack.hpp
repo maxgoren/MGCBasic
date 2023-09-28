@@ -52,7 +52,7 @@ class Stack {
                 a[i] = o.a[i];
         }
         ~Stack() {
-            delete [] a;
+            //delete [] a;
         }
         void push(T info) {
             if (n + 1 == maxn)
