@@ -293,7 +293,7 @@ public:
         while (running) {
             cout<<"repl> ";
             getline(cin, inputline);
-            if (inputline == ".done")
+            if (inputline == ".done" || inputline == ".quit" || inputline == ".exit")
                 break;
             else if (inputline == ".run") {
                 //I want to refactor the entire flow to eliminate the use of vectors, except for embedded use
@@ -308,6 +308,14 @@ public:
                 string filename = inputline.substr(6);
                 readSourceFromFile(filename);
                 cout<<filename<<": loaded."<<endl;
+            } else if (inputline == ".showvals") {
+                for (auto t : valueMap) {
+                    cout<<t.first<<": "<<t.second<<endl;
+                }
+            } else if (inputline == ".showtokens") {
+                for (auto t : program) {
+                    lex.showLexemes(t.second);
+                }
             } else {
                 if (!isdigit(inputline[0])) {
                     string nil = to_string(autoline) + " " + inputline;

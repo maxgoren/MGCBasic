@@ -29,6 +29,7 @@ SOFTWARE.
 #include <vector>
 #include <iomanip>
 #include <fstream>
+#include "mgcpl_globals.hpp"
 #include "Stack.hpp"
 using namespace std;
 
@@ -100,21 +101,20 @@ string infix2postfix(string expr) {
 
 //apply supplied operator op to operands a and b
 int applyOper(char op, int a, int b) {
-        double _a = (double)a;
-        double _b = (double)b;
+
         switch (op) {
             case '+':
-                //cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
-                return (int)(_a + _b);
+                cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
+                return (a + b);
             case '*':
-                //cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
-                return (int)(_a * _b);
+                cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
+                return (a * b);
             case '/':
-               //cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
-                return (int)(_a / _b);
+                cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
+                return (a / b);
             case '-':
-                //cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
-                return (int)(_a - _b);
+                cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
+                return (a - b);
         }
     return 0;
 }
@@ -168,10 +168,13 @@ node* buildExpressionTree(string expr) {
 //the tree
 int eval(string expr) {
     //cout<<"------------------------"<<endl;
-    //cout<<"Evaluating: "<<expr<<endl;
+    //cout<<"infix: "<<expr<<endl;
     expr = infix2postfix(expr);
     node* x = buildExpressionTree(expr);
-    return evalTree(x);
+    //cout<<"eval: "<<expr<<endl;
+    int result = evalTree(x);
+    //cout<<"Result: "<<result<<endl;
+    return result;
 }
 
 #endif
