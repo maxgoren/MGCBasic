@@ -41,30 +41,30 @@ class MGCBasic {
     avlmap<int, TokenList*> program;
     avlmap<int, string> source;
     IterableMap<string, string> valueMap;
-    void handleLet() {
+    /*void handleLet() {
         bool isExpression = false;
         if (match(LETSYM)) {
-          if (lookahead == IDSYM) {
+          if (matchToken(lookahead, IDSYM)) {
             string _id = curr->str;
             string _total = "";
             match(IDSYM);
             if (match(ASSIGNSYM)) {
-                while (lookahead != SEMICOLON) {
-                    if (lookahead == LPAREN) {
+                while (!matchToken(lookahead, SEMICOLON)) {
+                    if (matchToken(lookahead, LPAREN)) {
                         _total += " ( ";
                     }
-                    if (lookahead == RPAREN) {
+                    if (matchToken(lookahead, RPAREN)) {
                         _total += " ) ";
                     }
-                    if (lookahead == IDSYM) {
+                    if (matchToken(lookahead, IDSYM)) {
                         if (valueMap.find(curr->str) == valueMap.end()) {
                             cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
                         } else {
                             _total += valueMap[curr->str];
                         }
-                    } else if (lookahead == NUM) {
+                    } else if (matchToken(lookahead, NUM)) {
                         _total += curr->str;
-                    } else if (lookahead == ADD || lookahead == SUB || lookahead == MUL || lookahead == DIV) {
+                    } else if (matchToken(lookahead, ADD) || matchToken(lookahead, SUB) || matchToken(lookahead, MUL) || matchToken(lookahead, DIV)) {
                         isExpression = true;
                         _total += " " + curr->str + " ";
                     }
@@ -77,31 +77,31 @@ class MGCBasic {
             }
           }
         }
-    }
+    }*/
 
     void handleIdSym() {
         bool isExpression = false;
-        if (lookahead == IDSYM) {
+        if (matchToken(lookahead, IDSYM)) {
             string _id = curr->str;
             string _total = "";
             match(IDSYM);
             if (match(ASSIGNSYM)) {
-                while (lookahead != SEMICOLON) {
-                    if (lookahead == LPAREN) {
+                while (!matchToken(lookahead, SEMICOLON)) {
+                    if (matchToken(lookahead, LPAREN)) {
                         _total += " ( ";
                     }
-                    if (lookahead == RPAREN) {
+                    if (matchToken(lookahead, RPAREN)) {
                         _total += " ) ";
                     }
-                    if (lookahead == IDSYM) {
+                    if (matchToken(lookahead, IDSYM)) {
                         if (valueMap.find(curr->str) == valueMap.end()) {
                             cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
                         } else {
                             _total += valueMap[curr->str] + " ";
                         }
-                    } else if (lookahead == NUM) {
+                    } else if (matchToken(lookahead, NUM)) {
                         _total += curr->str + " ";
-                    } else if (lookahead == ADD || lookahead == SUB || lookahead == MUL || lookahead == DIV) {
+                    } else if (matchToken(lookahead, ADD) || matchToken(lookahead, SUB) || matchToken(lookahead, MUL) || matchToken(lookahead, DIV)) {
                         isExpression = true;
                         _total += curr->str + " ";
                     }
@@ -120,21 +120,21 @@ class MGCBasic {
             if (match(LPAREN)) {
                 string firstVal, secondVal, relop;
                 do {
-                    if (curr->tok == IDSYM)
+                    if (matchToken(curr->tok, IDSYM))
                         firstVal += valueMap[curr->str];
-                    if (curr->tok == NUM)
+                    if (matchToken(curr->tok, NUM))
                         firstVal += curr->str;
                     nexttoken();
-                } while (lookahead != LT && lookahead != GT && lookahead != EQ && lookahead != NOTEQ);
+                } while (!matchToken(lookahead, LT) && !matchToken(lookahead, GT) && !matchToken(lookahead, EQ) && !matchToken(lookahead, NOTEQ));
                 relop = curr->str;
                 nexttoken();
                 do {
-                    if (curr->tok == IDSYM)
+                    if (matchToken(curr->tok, IDSYM))
                         secondVal += valueMap[curr->str];
-                    if (curr->tok == NUM)
+                    if (matchToken(curr->tok, NUM))
                         secondVal += curr->str;
                     nexttoken();
-                } while (lookahead != RPAREN);
+                } while (!matchToken(lookahead, RPAREN));
                 if (relop == "<")
                     return (atoi(firstVal.c_str()) < atoi(secondVal.c_str()));
                 if (relop == ">")
@@ -153,19 +153,19 @@ class MGCBasic {
 
     void handlePrint() {
         if (match(PRINTSYM)) {
-            if (lookahead == QUOTESYM) {
+            if (matchToken(lookahead, QUOTESYM)) {
                 nexttoken();
                 string value;
-                while (lookahead != QUOTESYM && lookahead != SEMICOLON && curr->next != nullptr) {
+                while (!matchToken(lookahead, QUOTESYM) && !matchToken(lookahead, SEMICOLON) && curr->next != nullptr) {
                     value += curr->str + " ";
                     nexttoken();
                 }
                 cout<<value<<endl;
             }
-            if (lookahead == IDSYM) {
+            if (matchToken(lookahead, IDSYM)) {
                 string value;
-                while (lookahead != SEMICOLON && curr->next != nullptr) {
-                    if (lookahead == IDSYM)
+                while (!matchToken(lookahead, SEMICOLON) && curr->next != nullptr) {
+                    if (matchToken(lookahead, IDSYM))
                         value += valueMap[curr->str] + " ";
                     nexttoken();
                 }
@@ -176,7 +176,7 @@ class MGCBasic {
 
     void handleInput() {
         match(INPUT);
-        if (lookahead == IDSYM) {
+        if (matchToken(lookahead, IDSYM)) {
             string input;
             getline(cin, input);
             valueMap[curr->str] = input;
@@ -201,7 +201,7 @@ class MGCBasic {
         for(int lp = 0; lp < lines.size(); lp++) {
             TokenList* lineStream = lines[lp];
             initparser(lineStream);
-            if (lookahead == NUM) {
+            if (matchToken(lookahead, NUM)) {
                 nexttoken();
             } else {
                 cout<<"Error: no line number supplied."<<endl;
@@ -212,7 +212,8 @@ class MGCBasic {
                     handleIdSym();
                     break;
                 case LETSYM:
-                    handleLet();
+                    match(LETSYM);
+                    handleIdSym();
                     break;
                 case PRINTSYM:
                     handlePrint();

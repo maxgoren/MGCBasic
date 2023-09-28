@@ -49,4 +49,8 @@ struct TokenList {
     TokenList* next;
 };
 
+bool matchToken(Token a, Token b) {
+    return a == b;
+}
+
 #endif

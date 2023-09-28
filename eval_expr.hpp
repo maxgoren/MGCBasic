@@ -52,29 +52,9 @@ struct node {
     }
 };
 
-
-//this method preps input string to be run through the shunting
-//yard algorithm. It makes sure all operators have a blankspaces
-//padding them on both sides
-string prepExpr(string expr) {
-    string fixed;
-    for (int i = 0; i < expr.size(); i++) {
-        fixed.push_back(expr[i]);
-        if (expr[i] == '(' || expr[i] == ')' || (i < expr.size() && expr[i] == '-' && !isdigit(expr[i+1])) 
-         || expr[i] == '+' || expr[i] == '*' || expr[i] == '/') {
-            if (i < expr.size()-1 && expr[i+1] != ' ')
-                fixed.push_back(' ');
-         }
-         if (i < expr.size() - 1 && (expr[i+1] == '(' || expr[i+1] == ')' || expr[i+1] == '+' || expr[i+1] == '*' || expr[i+1] == '/')) 
-                fixed.push_back(' ');
-    }
-    return fixed;
-}
-
 //Dijkstra's shungting yard algorithm
 //converts infix expression to postfix
 string infix2postfix(string expr) {
-    //expr = prepExpr(expr);
     Stack<char> sf;
     string postfix;
     for (int i = 0; i < expr.length(); i++) {
@@ -99,21 +79,33 @@ string infix2postfix(string expr) {
     return postfix;
 }
 
+int m_add(int a, int b) {
+    cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
+    return (a + b);
+}
+
+int m_mul(int a, int b) {
+    cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
+    return (a * b);
+}
+
+int m_sub(int a, int b) {
+    cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
+    return (a - b);
+}
+
+int m_div(int a, int b) {
+    cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
+    return (a / b);
+}
+
 //apply supplied operator op to operands a and b
 int applyOper(char op, int a, int b) {
         switch (op) {
-            case '+':
-                cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
-                return (a + b);
-            case '*':
-                cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
-                return (a * b);
-            case '/':
-                cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
-                return (a / b);
-            case '-':
-                cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
-                return (a - b);
+            case '+': return m_add(a, b);
+            case '*': return m_mul(a, b);
+            case '/': return m_div(a, b);
+            case '-': return m_sub(a, b);
         }
     return 0;
 }
@@ -136,8 +128,15 @@ int evalTree(node* x) {
     int lval = evalTree(x->left);
     int rval = evalTree(x->right);
     int res = applyOper(x->op, lval, rval);
-    delete x;
     return res;
+}
+
+void cleanup(node* x) {
+    if (x != nullptr) {
+        cleanup(x->left);
+        cleanup(x->right);
+        delete x;
+    }
 }
 
 //build binary expression tree 
@@ -174,6 +173,7 @@ int eval(string expr) {
     node* x = buildExpressionTree(expr);
     //cout<<"eval: "<<expr<<endl;
     int result = evalTree(x);
+    cleanup(x);
     //cout<<"Result: "<<result<<endl;
     return result;
 }

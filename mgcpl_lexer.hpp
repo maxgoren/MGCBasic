@@ -123,7 +123,7 @@ class Lexer {
 
     void printLexemes(TokenList *list) {
         for (auto token = list; token != nullptr; token = token->next) {
-            cout << "<[" << endl;
+            cout << "<[";
             cout << " Token:   " << tokenNames[token->tok] << ", ";
             cout << " line no: " << token->lineno << ", ";
             cout << " index:   " << token->lpos << " - " << token->rpos << ", ";
