@@ -191,7 +191,7 @@ class MGCBasic {
         if (ready) {
             vector<TokenList*> scope;
             int sl = lp+1;
-            while (!matchToken(lines[sl]->next->tok, NEXTSYM)) {
+            while (!(matchToken(lines[sl]->next->tok, NEXTSYM) && varname == lines[sl]->next->next->str)) {
                 scope.push_back(lines[sl++]);
             }
             while (count <= finish) {
@@ -351,8 +351,10 @@ public:
                     lex.showLexemes(t.second);
                 }
             } else if (inputline == ".clear") {
-                program.clear();
-                source.clear();
+                if (!program.empty()) {
+                    program.clear();
+                    source.clear();
+                }
                 autoline = 10;
             } else if (inputline == ".keywords") {
                 cout<<"Keywords: "<<endl;

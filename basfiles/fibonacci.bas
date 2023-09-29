@@ -6,4 +6,4 @@
 35   curr := fib;
 40   print fib;
 45   fib := prev + curr;
-50 next i
+50 next i;
