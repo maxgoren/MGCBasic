@@ -34,7 +34,6 @@ SOFTWARE.
 using namespace std;
 
 
-
 struct node {
     char op;
     int value;

@@ -29,8 +29,8 @@ SOFTWARE.
 #include "mgcbasic_parser_utils.hpp"
 #include "mgcbasic_lexer.hpp"
 #include "mgcbasic_eval.hpp"
-#include "hashtable.hpp"
-#include "avlmap.hpp"
+#include "symboltable/hashtable.hpp"
+#include "symboltable/avlmap.hpp"
 using std::string;
 using std::cout;
 using std::endl;

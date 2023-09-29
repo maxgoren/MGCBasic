@@ -24,7 +24,7 @@ SOFTWARE.
 #ifndef mgcpl_lexer_hpp
 #define mgcpl_lexer_hpp
 #include <iostream>
-#include "hashtable.hpp"
+#include "symboltable/hashtable.hpp"
 #include "mgcbasic_globals.hpp"
 using std::string;
 using std::cout;
