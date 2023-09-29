@@ -41,44 +41,6 @@ class MGCBasic {
     avlmap<int, TokenList*> program;
     avlmap<int, string> source;
     IterableMap<string, string> valueMap;
-    /*void handleLet() {
-        bool isExpression = false;
-        if (match(LETSYM)) {
-          if (matchToken(lookahead, IDSYM)) {
-            string _id = curr->str;
-            string _total = "";
-            match(IDSYM);
-            if (match(ASSIGNSYM)) {
-                while (!matchToken(lookahead, SEMICOLON)) {
-                    if (matchToken(lookahead, LPAREN)) {
-                        _total += " ( ";
-                    }
-                    if (matchToken(lookahead, RPAREN)) {
-                        _total += " ) ";
-                    }
-                    if (matchToken(lookahead, IDSYM)) {
-                        if (valueMap.find(curr->str) == valueMap.end()) {
-                            cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
-                        } else {
-                            _total += valueMap[curr->str];
-                        }
-                    } else if (matchToken(lookahead, NUM)) {
-                        _total += curr->str;
-                    } else if (matchToken(lookahead, ADD) || matchToken(lookahead, SUB) || matchToken(lookahead, MUL) || matchToken(lookahead, DIV)) {
-                        isExpression = true;
-                        _total += " " + curr->str + " ";
-                    }
-                    nexttoken();
-                }
-                if (isExpression) {
-                    _total = to_string(eval(_total));
-                }
-                valueMap.put(_id, _total);
-            }
-          }
-        }
-    }*/
-
     void handleIdSym() {
         bool isExpression = false;
         if (matchToken(lookahead, IDSYM)) {

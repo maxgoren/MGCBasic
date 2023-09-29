@@ -23,7 +23,7 @@ SOFTWARE.
 */
 #include <iostream>
 #include <vector>
-#include "mgcbasic_interpreter.hpp"
+#include "include/mgcbasic_interpreter.hpp"
 using namespace std;
 
 const string NAME = "MGCBasic";
