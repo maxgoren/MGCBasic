@@ -6,7 +6,7 @@ MGC Basic is a simple interpreter for a dialet of the BASIC language. It has a R
 Using the REPL you can load a program from a saved .bas file. Alternatively, you can pass basic code supplied as a vector of strings to the interpreter as shown below.
 
 The syntax is *derived* from the "Tiny BASIC" language specification(ahem, wikipedia page), which is so kind as to include a BNF grammar.
-I did convert it to lowercase however, because TYPING LIKE THIS GETS OLD FAST.
+I did convert it to lowercase however, because TYPING LIKE THIS GETS OLD FAST. Features not present in Tiny BASIC such as for loop's have been added.
 
 This project is still in its early stages and should not be considered "stable".
 
@@ -51,16 +51,16 @@ This project is still in its early stages and should not be considered "stable".
      max@MaxGorenLaptop:~/mgcpl$ ./mgcpl
      MGCBasic 0.1b (c) 2023 maxgcoding.com
      -------------------------------------
-     repl> let a:= 2 ;
-     repl> 10 let a := 2 ;        
-     repl> let b := 3 ;
-     repl> print c ;
-     repl> 25 let c := a + b ;
+     repl> let a:= 2;
+     repl> 10 let a := 2;        
+     repl> let b := 3;
+     repl> print c;
+     repl> 25 let c := a + b;
      repl> .list
-     10 let a := 2 ;
-     20 let b := 3 ;
-     25 let c := a + b ;
-     30 print c ;
+     10 let a := 2;
+     20 let b := 3;
+     25 let c := a + b;
+     30 print c;
      repl> .run
      5
      repl> .quit
@@ -71,17 +71,17 @@ This project is still in its early stages and should not be considered "stable".
      repl> .load fibonacci.bas
      fibonacci.bas: 
      repl> .list
-     10 let prev := 0 ;
-     15 let curr := 1 ;
-     20 let next := curr + prev ;
-     25 print prev ;
-     30 print curr ;
-     35 prev := curr ;
-     40 curr := next ;
+     10 let prev := 0;
+     15 let curr := 1;
+     20 let next := curr + prev;
+     25 print prev;
+     30 print curr;
+     35 prev := curr;
+     40 curr := next;
      45 if (next < 50) then
-     50 print next ;
-     55 next := curr + prev ;
-     60 goto 35 ;
+     50 print next;
+     55 next := curr + prev;
+     60 goto 35;
      65 end
      repl> .run
      0 
