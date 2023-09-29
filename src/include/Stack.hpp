@@ -75,7 +75,7 @@ class Stack {
             delete tmp;
             return ret;
         }
-        T& front() {
+        T& top() {
             return m_head->info;
         }
         void clear() {

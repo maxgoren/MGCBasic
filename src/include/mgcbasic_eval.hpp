@@ -33,51 +33,6 @@ SOFTWARE.
 #include "Stack.hpp"
 using namespace std;
 
-
-struct node {
-    char op;
-    int value;
-    node* left;
-    node* right;
-    node(char op_) {
-        op = op_;
-        left = nullptr;
-        right = nullptr;
-    }
-    node(int value_) {
-        value = value_;
-        left = nullptr;
-        right = nullptr;
-    }
-};
-
-//Dijkstra's shungting yard algorithm
-//converts infix expression to postfix
-string infix2postfix(string expr) {
-    Stack<char> sf;
-    string postfix;
-    for (int i = 0; i < expr.length(); i++) {
-        if (expr[i] == ')') postfix.push_back(sf.pop());
-        else if (expr[i] == '+' || expr[i] == '*' || (i < expr.size() - 1 && expr[i] == '-' && !isdigit(expr[i+1])) || expr[i] == '/' )
-            sf.push(expr[i]);
-        else {
-            int e = i;
-            if (expr[e] == '-') postfix.push_back('-');
-            while (isdigit(expr[e])) {
-                postfix.push_back(expr[e++]);
-            }
-            if (e != i)
-                postfix.push_back(' ');
-            i = e;
-        }
-    }
-    while (!sf.empty()) {
-        postfix.push_back(sf.pop());
-        postfix.push_back(' ');
-    }
-    return postfix;
-}
-
 int m_add(int a, int b) {
     //cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
     return (a + b);
@@ -109,72 +64,35 @@ int applyOper(char op, int a, int b) {
     return 0;
 }
 
-//is this node a leaf node?
-bool isLeaf(node* x) {
-    if (x == nullptr) return true;
-    return x->left == nullptr && x->right == nullptr;
-}
-
-
-//walk the tree postorder, evaluating the expression
-//and freeing the memory used by the tree.
-int evalTree(node* x) {
-    if (x == nullptr) 
-        return 0;
-
-    if (x && isLeaf(x))
-        return x->value;
-    int lval = evalTree(x->left);
-    int rval = evalTree(x->right);
-    int res = applyOper(x->op, lval, rval);
-    return res;
-}
-
-void cleanup(node* x) {
-    if (x != nullptr) {
-        cleanup(x->left);
-        cleanup(x->right);
-        delete x;
-    }
-}
-
-//build binary expression tree 
-//bottom up from postfix expression
-node* buildExpressionTree(string expr) {
-    node* x;
-    Stack<node*> sf;
-    for (int i = 0; i < expr.size(); i++) {
-        if (expr[i] == '+' || expr[i] == '*' ||expr[i] == '-' || expr[i] == '/' ) {
-            x = new node(expr[i]);
-            x->right = sf.pop();
-            x->left = sf.pop();
-            sf.push(x);
-        }
-        if (isdigit(expr[i]) || (i < expr.size() - 1 && expr[i] == '-' && isdigit(expr[i+1]))) {
+int eval(string str) {
+    int x, a, b;
+    char op;
+    Stack<int> vals;
+    Stack<char> ops;
+    for (int i = 0; i < str.size(); i++) {
+        if (str[i] == '(' || str[i] == ' ') {
+            continue;
+        } else if (str[i] == '+' || str[i] == '*' || (str[i] == '-' && str[i+1] == ' ') || str[i] == '/' ) { 
+            ops.push(str[i]);
+        } else if (str[i] == ')') { 
+            b = vals.pop();
+            a = vals.pop();
+            vals.push(applyOper(ops.pop(), a, b));
+        } else if (isdigit(str[i]) || (str[i] == '-' && isdigit(str[i+1]))) {
             int e = i;
-            if (i < expr.size() - 1 && expr[i] == '-' && isdigit(expr[i+1])) e++;
-            while (isdigit(expr[++e]));
-            sf.push(new node(atoi(expr.substr(i, e).c_str())));
-            i = e;
-        }
+            while (isdigit(str[++e]));
+            x = atoi(str.substr(i, e).c_str());
+            vals.push(x);
+            i = e-1;
+        } 
     }
-    return x;
-}
- 
-//evaluate a given infix expression by 
-//converting it to postfix, building a
-//bottom up expression tree, and walking
-//the tree
-int eval(string expr) {
-    //cout<<"------------------------"<<endl;
-    //cout<<"infix: "<<expr<<endl;
-    expr = infix2postfix(expr);
-    node* x = buildExpressionTree(expr);
-    //cout<<"eval: "<<expr<<endl;
-    int result = evalTree(x);
-    cleanup(x);
-    //cout<<"Result: "<<result<<endl;
-    return result;
+    while (!ops.empty()) {
+        b = vals.pop();
+        a = vals.pop();
+        op = ops.pop();
+        vals.push(applyOper(op, a, b));
+    }
+    return vals.pop();
 }
 
 #endif
