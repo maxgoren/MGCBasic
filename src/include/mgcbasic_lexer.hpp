@@ -35,20 +35,15 @@ class Lexer {
     private:
     IterableMap<string, Token> vars_map;
     IterableMap<string, Token> keywords;
-    void initKeywords();
-
     Token getToken(string word);
     vector<TokenList*> tokenize(vector<string>& program);
-
     void printLexemes(TokenList *list);
+    void initKeywords();
 public:
     Lexer() {
         initKeywords();
     }
-    ~Lexer() {
-
-    }
-    
+    ~Lexer() { }
     vector<TokenList*> analyze(vector<string>& program) {
         return tokenize(program);
 

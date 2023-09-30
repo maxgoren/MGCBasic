@@ -12,7 +12,7 @@ Token lookahead;
 Token lookbehind;
 bool ready;
 
-void error(TokenList* token) {
+void token_error(TokenList* token) {
     cout<<"Error at line: "<<token->lineno<<" near "<<token->str<<endl;
 }
 
@@ -37,7 +37,7 @@ bool match(Token token) {
 bool expect(Token t) {
     if (match(t))
         return true;
-    error(curr);
+    token_error(curr);
     return false;
 }
 
