@@ -303,6 +303,7 @@ class avlmap {
         }
         avlmap& operator=(const avlmap& o) {
             root = nullptr;
+            N = 0;
             for (auto t : o) {
                 put(t.first, t.second);
             }

@@ -99,6 +99,7 @@ void Lexer::initKeywords() {
     keywords["num"] = NUM;
     keywords["string"] = STRING;
     keywords[","] = COMMA;
+    keywords["println"] = PRINTLN;
 }
 
 Token Lexer::getToken(string word) {

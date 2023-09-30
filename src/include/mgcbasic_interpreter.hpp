@@ -140,30 +140,37 @@ class MGCBasic {
     }
 
     void handlePrint() {
-        if (match(PRINTSYM)) {
+        string m_value;
+        if (match(PRINTSYM) || match(PRINTLN)) {
             while (!matchToken(lookahead, SEMICOLON)) {
-                if (matchToken(lookahead, QUOTESYM)) {
+                if (matchToken(lookahead, NUM)) {
+                    m_value += curr->str + " ";
                     nexttoken();
-                    string value;
+                    cout<<m_value;
+                } else if (matchToken(lookahead, QUOTESYM)) {
+                    nexttoken();
                     while (!matchToken(lookahead, QUOTESYM) && curr->next != nullptr) {
-                        value += curr->str + " ";
+                        if (!matchToken(lookahead, COMMA))
+                            m_value += curr->str + " ";
                         nexttoken();
+                        if (matchToken(lookahead, QUOTESYM)) nexttoken();
                     }
-                    cout<<value<<endl;
+                    cout<<m_value;
                 } else if (matchToken(lookahead, IDSYM)) {
-                    string value;
-                    value += valueMaps[getTypeFromVarname(curr->str)][curr->str] + " ";
+                    m_value += valueMaps[getTypeFromVarname(curr->str)][curr->str] + " ";
                     nexttoken();
-                    cout<<value<<" ";
-                } else if (matchToken(lookahead, NUM)) {
-                    cout<<curr->str<<" ";
-                    nexttoken();
+                    cout<<m_value<<" ";
                 } else if (matchToken(lookahead, COMMA)) {
                     nexttoken();
                 }
-                if (curr == nullptr) { cout<<endl; return; }
+                if (curr == nullptr || matchToken(lookahead, SEMICOLON)) { return; }
             }
+            //cout<<m_value;
         }
+    }
+
+    void handlePrintln() {
+        handlePrint();
         cout<<endl;
     }
 
@@ -280,6 +287,67 @@ class MGCBasic {
         cout<<endl;
     }
 
+    void m_repl_man() {
+        int autoline = 10;
+        bool running = true;
+        string inputline;
+        
+        while (running) {
+            cout<<"\nmgcb> ";
+            getline(cin, inputline);
+            if (inputline == ".done" || inputline == ".quit" || inputline == ".exit")
+                break;
+            else if (inputline == ".run") {
+                //I want to refactor the entire flow to eliminate the use of vectors, except for embedded use
+                //I believe avlmap could be used for the whole enchillada. It would make GOTO cleaner, but IF harder..
+                vector<TokenList*> r2r = prepForInterp();
+                interpret(r2r);
+            } else if (inputline == ".list") {
+                for (auto l : source) {
+                    cout<<l.second<<endl;
+                }
+            } else if (inputline.substr(0, 5) == ".load") {
+                string filename = inputline.substr(6);
+                readSourceFromFile(filename);
+                cout<<filename<<": loaded."<<endl;
+            } else if (inputline == ".symbols") {
+                for (auto t : valueMaps) {
+                    cout<<t.first<<": "<<endl;
+                    for (auto m : t.second)
+                        cout<<m.first<<": "<<m.second<<endl;
+                }
+            } else if (inputline == ".tokens") {
+                for (auto t : program) {
+                    lex.showLexemes(t.second);
+                }
+            } else if (inputline == ".clear") {
+                if (!program.empty()) {
+                    program.clear();
+                    source.clear();
+                    valueMaps["int"].clear();
+                    valueMaps["real"].clear();
+                    valueMaps["string"].clear();
+                }
+                autoline = 10;
+            } else if (inputline == ".keywords") {
+                cout<<"Keywords: "<<endl;
+                for (auto t : lex.getkeywords()) {
+                    cout<<t.first<<": "<<tokenNames[t.second]<<endl;
+                }
+                break;            
+            } else {
+                if (!isdigit(inputline[0])) {
+                    string nil = to_string(autoline) + " " + inputline;
+                    inputline = nil;
+                    autoline += 5;
+                }
+                TokenList* line = lex.repl_tokenize(inputline);
+                program.put(atoi(line->str.c_str()), line);
+                source.put(atoi(line->str.c_str()), inputline);
+            }
+        }
+    }
+
     void interpret(vector<TokenList*>& lines) {
         bool stepping = false;
         int nextLine = 0;
@@ -305,6 +373,9 @@ class MGCBasic {
                 case LETSYM:
                     match(LETSYM);
                     handleIdSym();
+                    break;
+                case PRINTLN:
+                    handlePrintln();
                     break;
                 case PRINTSYM:
                     handlePrint();
@@ -382,65 +453,9 @@ public:
     }
 
     void REPL() {
-        int autoline = 10;
-        bool running = true;
-        string inputline;
-        
-        while (running) {
-            cout<<"repl> ";
-            getline(cin, inputline);
-            if (inputline == ".done" || inputline == ".quit" || inputline == ".exit")
-                break;
-            else if (inputline == ".run") {
-                //I want to refactor the entire flow to eliminate the use of vectors, except for embedded use
-                //I believe avlmap could be used for the whole enchillada. It would make GOTO cleaner, but IF harder..
-                vector<TokenList*> r2r = prepForInterp();
-                interpret(r2r);
-            } else if (inputline == ".list") {
-                for (auto l : source) {
-                    cout<<l.second<<endl;
-                }
-            } else if (inputline.substr(0, 5) == ".load") {
-                string filename = inputline.substr(6);
-                readSourceFromFile(filename);
-                cout<<filename<<": loaded."<<endl;
-            } else if (inputline == ".symbols") {
-                for (auto t : valueMaps) {
-                    cout<<t.first<<": "<<endl;
-                    for (auto m : t.second)
-                        cout<<m.first<<": "<<m.second<<endl;
-                }
-            } else if (inputline == ".tokens") {
-                for (auto t : program) {
-                    lex.showLexemes(t.second);
-                }
-            } else if (inputline == ".clear") {
-                if (!program.empty()) {
-                    program.clear();
-                    source.clear();
-                    valueMaps["int"].clear();
-                    valueMaps["real"].clear();
-                    valueMaps["string"].clear();
-                }
-                autoline = 10;
-            } else if (inputline == ".keywords") {
-                cout<<"Keywords: "<<endl;
-                for (auto t : lex.getkeywords()) {
-                    cout<<t.first<<": "<<tokenNames[t.second]<<endl;
-                }
-                break;            
-            } else {
-                if (!isdigit(inputline[0])) {
-                    string nil = to_string(autoline) + " " + inputline;
-                    inputline = nil;
-                    autoline += 5;
-                }
-                TokenList* line = lex.repl_tokenize(inputline);
-                program.put(atoi(line->str.c_str()), line);
-                source.put(atoi(line->str.c_str()), inputline);
-            }
-        }
+        m_repl_man();
     }
+    
 };
 
 #endif
