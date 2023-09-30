@@ -14,7 +14,8 @@ This project is still in its early stages and should not be considered "stable".
   - assign integers to variable names using 'let var := <number>' (yes, assignment is done with :=, my implementation my choice :D)
   - variables can be updated without using 'let' once theyve been initialized(declared variables must be initialized to a value at time of decleration.
   - print statements can print strings in single quotes, or variable names. every print statement inclues the new line automatically.
-  - Loops are performed via goto. Take that Dijkstra! (Just kidding. eval() wouldnt work without his shunting yard algorithm) 
+  - looping with for loops, or the older line number goto style looping.
+  - control flow with if statements
   - evaluate infix math expressions, expressions can intermix variable names with numbers 
   - REPL - this is more like an oldschool basic environment as youd find on the TRS-80, etc. on early home computers, this was akin to the operating system.
   - input data into a pre-declared variable (integers only)
@@ -36,13 +37,9 @@ This project is still in its early stages and should not be considered "stable".
    - string support
    - print expressions, intermix variables in print statements
    - expressions besides relop expressions inside if statements
-   - implement gosub, singline functions, and return
-   - possibly change all math to floating point to be able to handle fractions
+   - implement gosub, singleline functions, and return
    - *who knows*
 
- ### Known Bugs
-   - the expression evaluator (embarassingly) isnt handling negative numbers very well.
-   - this is not so much a bug, but should be pointed out: MGCBasic only supports integer math. So, for example, trying to multiply something by a fraction will ALWAYS evaluate to zero.
     
  ### Using the REPL
  below is an example session showing the REPL in action, you can see that lines can be entered "out of order", and that
