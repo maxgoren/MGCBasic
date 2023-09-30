@@ -10,6 +10,16 @@ I did convert it to lowercase however, because TYPING LIKE THIS GETS OLD FAST. F
 
 This project is still in its early stages and should not be considered "stable".
 
+### Getting MGCBasic
+This repository provides you with a make file, simple clone this repository to your computer
+and in a unix/linux environment run.
+
+     'make' 
+     ./mgcbasic
+
+MGCBasic has been tested and compiles on Linux and MacOS with both g++ and clang++,
+as well as on windows with g++ and MSVC.
+
 ### Currently supported:
   - assign integers to variable names using 'let var := <number>' (yes, assignment is done with :=, my implementation my choice :D)
   - variables can be updated without using 'let' once theyve been initialized(declared variables must be initialized to a value at time of decleration.
