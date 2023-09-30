@@ -22,8 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-#ifndef eval_expr_hpp
-#define eval_expr_hpp
+#ifndef mgcbasic_eval_hpp
+#define mgcbasic_eval_hpp
 #include <iostream>
 #include "Stack.hpp"
 using std::pair;
@@ -32,11 +32,11 @@ using std::string;
 
 pair<int, double> parseNumber(string str, int spos) {
     int e = spos;
-    while (isdigit(str[++e]));
-    return make_pair(e-1, atoi(str.substr(spos, e).c_str()));
+    while (isdigit(str[e]) || str[e] == '.') ++e;
+    return make_pair(e-1, atof(str.substr(spos, e).c_str()));
 }
 
-int eval(string expr) {
+double eval(string expr) {
     string str = "(" + expr + ")";
     double a, b;
     char op;
