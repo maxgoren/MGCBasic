@@ -25,72 +25,40 @@ SOFTWARE.
 #ifndef eval_expr_hpp
 #define eval_expr_hpp
 #include <iostream>
-#include <stack>
-#include <vector>
-#include <iomanip>
-#include <fstream>
-#include "mgcbasic_globals.hpp"
 #include "Stack.hpp"
-using namespace std;
+using std::pair;
+using std::make_pair;
+using std::string;
 
-int m_add(int a, int b) {
-    //cout<<a<<" + "<<b<<" = "<<(a +b )<<endl;
-    return (a + b);
+pair<int, double> parseNumber(string str, int spos) {
+    int e = spos;
+    while (isdigit(str[++e]));
+    return make_pair(e-1, atoi(str.substr(spos, e).c_str()));
 }
 
-int m_mul(int a, int b) {
-    //cout<<a<<" * "<<b<<" = "<<(a * b)<<endl;
-    return (a * b);
-}
-
-int m_sub(int a, int b) {
-    //cout<<a<<" - "<<b<<" = "<<(a - b)<<endl;
-    return (a - b);
-}
-
-int m_div(int a, int b) {
-    //cout<<a<<" / "<<b<<" = "<<(a / b)<<endl;
-    return (a / b);
-}
-
-//apply supplied operator op to operands a and b
-int applyOper(char op, int a, int b) {
-        switch (op) {
-            case '+': return m_add(a, b);
-            case '*': return m_mul(a, b);
-            case '/': return m_div(a, b);
-            case '-': return m_sub(a, b);
-        }
-    return 0;
-}
-
-int eval(string str) {
-    int x, a, b;
+int eval(string expr) {
+    string str = "(" + expr + ")";
+    double a, b;
     char op;
-    Stack<int> vals;
+    Stack<double> vals;
     Stack<char> ops;
     for (int i = 0; i < str.size(); i++) {
-        if (str[i] == '(' || str[i] == ' ') {
-            continue;
-        } else if (str[i] == '+' || str[i] == '*' || (str[i] == '-' && str[i+1] == ' ') || str[i] == '/' ) { 
-            ops.push(str[i]);
-        } else if (str[i] == ')') { 
-            b = vals.pop();
-            a = vals.pop();
-            vals.push(applyOper(ops.pop(), a, b));
+        if      (str[i] == '(' || str[i] == '+')   ops.push(str[i]);
+        else if (str[i] == '*' || str[i] == '/')   ops.push(str[i]);
+        else if (str[i] == '-' && str[i+1] == ' ') ops.push(str[i]);
+        else if (str[i] == ')') { 
+            char op = ops.pop();
+            double v = vals.pop();
+            if      (op == '+') v = vals.pop() + v;
+            else if (op == '*') v = vals.pop() * v;
+            else if (op == '-') v = vals.pop() - v;
+            else if (op == '/') v = vals.pop() / v;
+            vals.push(v);
         } else if (isdigit(str[i]) || (str[i] == '-' && isdigit(str[i+1]))) {
-            int e = i;
-            while (isdigit(str[++e]));
-            x = atoi(str.substr(i, e).c_str());
-            vals.push(x);
-            i = e-1;
+            auto t = parseNumber(str, i);
+            vals.push(t.second);
+            i = t.first;
         } 
-    }
-    while (!ops.empty()) {
-        b = vals.pop();
-        a = vals.pop();
-        op = ops.pop();
-        vals.push(applyOper(op, a, b));
     }
     return vals.pop();
 }
