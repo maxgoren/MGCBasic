@@ -7,15 +7,28 @@ using std::cout;
 using std::endl;
 
 
+/// in memory representation of tokenized source
+struct TokenList {
+    Token tok;
+    string str;
+    int lineno;
+    int lpos;
+    int rpos;
+    TokenList* next;
+};
+
+/// parser globals
 TokenList* curr;
 Token lookahead;
 Token lookbehind;
 bool ready;
 
+/// display error message
 void token_error(TokenList* token) {
     cout<<"Error at line: "<<token->lineno<<" near "<<token->str<<endl;
 }
 
+/// advannce stream forward
 void nexttoken() {
     if (curr != nullptr && curr->next != nullptr) {
         curr = curr->next;
@@ -26,6 +39,7 @@ void nexttoken() {
     }
 }
 
+/// Match and consume
 bool match(Token token) {
     if (token == lookahead) {
         nexttoken();
@@ -33,14 +47,12 @@ bool match(Token token) {
     }
     return 0;
 }
-
-bool expect(Token t) {
-    if (match(t))
-        return true;
-    token_error(curr);
-    return false;
+/// Match without consuming
+bool matchToken(Token a, Token b) {
+    return a == b;
 }
 
+/// initialize parser for token stream
 bool initparser(TokenList* stream) {
     if (stream != nullptr) {
         curr = stream;

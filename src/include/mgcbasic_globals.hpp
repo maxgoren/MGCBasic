@@ -41,19 +41,6 @@ vector<string> tokenNames = {
     "FORSYM", "NEXTSYM", "GOTO", "INPUT", "ELSESYM", "TOSYM", "STEP", "DIM", "AS", 
     "STRING", "COMMA", "PRINTLN" };
 
-struct TokenList {
-    Token tok;
-    string str;
-    int lineno;
-    int lpos;
-    int rpos;
-    TokenList* next;
-};
-
-bool matchToken(Token a, Token b) {
-    return a == b;
-}
-
 const string m_PROMPT = "mgcb";
 const string m_NAME = "MGCBasic";
 const string m_VERSION = "0.1b";

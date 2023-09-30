@@ -54,7 +54,7 @@ class MGCBasic {
     void handleInput();
     void handleREPLCode(string& line);
     void replPrompt(string& inputline);
-    void replMan();
+    void replManager();
     void interpret(vector<TokenList*>& lines);
     void readSourceFromFile(string filename);
     vector<TokenList*> prepForInterp();
@@ -76,7 +76,7 @@ public:
         interpret(r2r);
     }
     void REPL() {
-        replMan();
+        replManager();
     }
 };
 
@@ -85,6 +85,7 @@ MGCBasic::MGCBasic() {
     m_valueMaps.put("string", IterableMap<string,string>());
 }
 
+/// returns the type of supplied variable name
 string MGCBasic::getTypeFromVarname(string& varname) const {
     for (auto maps : m_valueMaps) {
         if (maps.second.find(varname) != maps.second.end())
@@ -92,6 +93,8 @@ string MGCBasic::getTypeFromVarname(string& varname) const {
     }
     return "nf";
 }
+
+/// returns the value of supplied variable name
 string& MGCBasic::getValueFromVarname(string& varname) {
     string valtype = getTypeFromVarname(varname);
     if (valtype == "nf") {
@@ -100,6 +103,7 @@ string& MGCBasic::getValueFromVarname(string& varname) {
     return m_valueMaps[valtype][varname];
 }
 
+/// execute assignment statements
 void MGCBasic::handleIdSym() {
     bool isExpression = false;
     if (matchToken(lookahead, IDSYM)) {
@@ -145,6 +149,7 @@ void MGCBasic::handleIdSym() {
     }
 }
 
+/// Execute If statements
 bool MGCBasic::handleIf() {
     if (match(IFSYM)) {
         if (match(LPAREN)) {
@@ -181,6 +186,7 @@ bool MGCBasic::handleIf() {
     return false;
 }
 
+/// Execute print statemets
 void MGCBasic::handlePrint() {
     string m_value;
     if (match(PRINTSYM) || match(PRINTLN)) {
@@ -211,11 +217,13 @@ void MGCBasic::handlePrint() {
     }
 }
 
+/// executes print statement and adds carriage return
 void MGCBasic::handlePrintln() {
     handlePrint();
     cout<<endl;
 }
 
+/// Execute for loop
 int MGCBasic::handleFor(vector<TokenList*>& lines, int lp) {
     string varname;
     bool ready = false;
@@ -275,6 +283,7 @@ int MGCBasic::handleFor(vector<TokenList*>& lines, int lp) {
     return 0;
 }
 
+/// Handles the declaring of variable names
 void MGCBasic::handleDim() {
     string identifier, valuetype;
     if (match(DIM)) {
@@ -300,6 +309,7 @@ void MGCBasic::handleDim() {
     }
 }
 
+/// retrieve input from the user
 void MGCBasic::handleInput() {
     match(INPUT);
     if (matchToken(lookahead, IDSYM)) {
@@ -311,6 +321,7 @@ void MGCBasic::handleInput() {
     }
 }
 
+/// display all variable names and their values for the currently loaded program
 void MGCBasic::showSymbols() {
     for (auto maps : m_valueMaps) {
         cout<<maps.first<<": "<<endl;
@@ -319,12 +330,14 @@ void MGCBasic::showSymbols() {
     }
 }
 
+/// show the tokenized version of currently loaded program
 void MGCBasic::showTokens() {
     for (auto line : m_program) {
         lex.showLexemes(line.second);
     }
 }
 
+/// clears currently loaded program resetting the environment
 void MGCBasic::clearProgram() {
     if (!m_program.empty()) {
         m_program.clear();
@@ -335,13 +348,14 @@ void MGCBasic::clearProgram() {
     autoline = 10;
 }
 
+/// display prompt, retrieve input
 void MGCBasic::replPrompt(string& inputline) {
     if (matchToken(lookbehind, PRINTSYM)) cout<<"\n";
     cout<<m_PROMPT<<"> ";
     getline(cin, inputline);
 }
 
-void MGCBasic::replMan() {
+void MGCBasic::replManager() {
     autoline = 10;
     replRunning = true;
     string inputline;

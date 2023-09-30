@@ -30,12 +30,15 @@ using std::pair;
 using std::make_pair;
 using std::string;
 
+/// extract number from string starting at spos
 pair<int, double> parseNumber(string str, int spos) {
     int e = spos;
     while (isdigit(str[e]) || str[e] == '.') ++e;
     return make_pair(e-1, atof(str.substr(spos, e).c_str()));
 }
 
+/// evaluate algebraic expression supplied as string
+/// using dijkstras 2 stack algorithm. supports negative numbers.
 double eval(string expr) {
     string str = "(" + expr + ")";
     double a, b;

@@ -54,10 +54,10 @@ public:
     IterableMap<string, Token>& getkeywords() {
         return keywords;
     }
-
     TokenList* repl_tokenize(string& curr);
 };
 
+//initialize keywords for recognizing syntax elements and identifiers 
 void Lexer::initKeywords() {    
     keywords["("] = LPAREN;   
     keywords[")"] = RPAREN;
@@ -97,6 +97,7 @@ void Lexer::initKeywords() {
     keywords["println"] = PRINTLN;
 }
 
+/// Retrieves appropriate token for provided symbol
 Token Lexer::getToken(string word) {
     if (word.size() >= 2) {
         if (word[0] == '-' && isdigit(word[1])) {
@@ -117,45 +118,16 @@ Token Lexer::getToken(string word) {
     return ERROR;
 }
 
+//tokenize entire program supplied as vector of strings
 vector<TokenList*> Lexer::tokenize(vector<string>& program) {
     vector<TokenList*> lines;
     for (int lineno = 0; lineno < program.size(); lineno++) {
-        string curr = program[lineno];
-        TokenList head;
-        TokenList *lst = &head;
-        for (int i = 0; i < curr.size(); i++) {
-            int lpos = i;
-            int rpos = i;
-            while (rpos < curr.length() && curr[rpos++] != ' ') {
-                if (curr[rpos - 1] == '(' || curr[rpos - 1] == '\'')
-                    break;
-                if (curr[rpos] == '\'' || curr[rpos] == ')')
-                    break;
-                if (curr[rpos] == ';' || curr[rpos] == ',')
-                    break;
-            }
-            i = rpos - 1;
-            string piece = curr.substr(lpos, rpos - lpos);
-            if (piece.size() > 0) {
-                Token tok = getToken(piece);
-                TokenList *nt = new TokenList;
-                nt->lineno = lineno;
-                nt->lpos = lpos;
-                nt->rpos = rpos;
-                nt->tok = tok;
-                nt->str = piece;
-                nt->next = nullptr;
-                lst->next = nt;
-                lst = nt;
-            }
-        }
-        auto x = head.next;
-        lines.push_back(x);
+        lines.push_back(repl_tokenize(program[lineno]));
     }
     return lines;
 }
 
-
+//print token stream to output
 void Lexer::printLexemes(TokenList *list) {
     for (auto token = list; token != nullptr; token = token->next) {
         cout << "<[";
@@ -167,6 +139,7 @@ void Lexer::printLexemes(TokenList *list) {
     }
 }
 
+/// tokenize single line of code
 TokenList* Lexer::repl_tokenize(string& curr) {
     TokenList head;
     TokenList *lst = &head;
