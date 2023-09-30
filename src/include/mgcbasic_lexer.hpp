@@ -94,6 +94,12 @@ void Lexer::initKeywords() {
     keywords["next"] = NEXTSYM;
     keywords["to"] = TOSYM;
     keywords["step"] = STEP;
+    keywords["dim"] = DIM;
+    keywords["as"] = AS;
+    keywords["int"] = INT;
+    keywords["real"] = REAL;
+    keywords["string"] = STRING;
+    keywords[","] = COMMA;
 }
 
 Token Lexer::getToken(string word) {
@@ -130,7 +136,7 @@ vector<TokenList*> Lexer::tokenize(vector<string>& program) {
                     break;
                 if (curr[rpos] == '\'' || curr[rpos] == ')')
                     break;
-                if (curr[rpos] == ';')
+                if (curr[rpos] == ';' || curr[rpos] == ',')
                     break;
             }
             i = rpos - 1;
@@ -177,7 +183,7 @@ TokenList* Lexer::repl_tokenize(string& curr) {
                 break;
             if (curr[rpos] == '\'' || curr[rpos] == ')')
                 break;
-            if (curr[rpos] == ';')
+            if (curr[rpos] == ';' || curr[rpos] == ',')
                 break;
         }
         if (curr[rpos - 1] == ' ') {

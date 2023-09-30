@@ -40,7 +40,24 @@ class MGCBasic {
     Lexer lex;
     avlmap<int, TokenList*> program;
     avlmap<int, string> source;
+    IterableMap<string, IterableMap<string,string>> valueMaps;
     IterableMap<string, string> valueMap;
+    string getTypeFromVarname(string varname) {
+        for (auto t : valueMaps) {
+            for (auto p : t.second) {
+                if (p.first == varname)
+                    return t.first;
+            }
+        }
+        return "nf";
+    }
+    string& getValueFromVarname(string varname) {
+        string valtype = getTypeFromVarname(varname);
+        if (valtype == "nf") {
+            cout<<"Error on line: "<<curr->lineno<<", unknown identifier: "<<varname<<endl;
+        }
+        return valueMaps[valtype][varname];
+    }
     void handleIdSym() {
         bool isExpression = false;
         if (matchToken(lookahead, IDSYM)) {
@@ -55,11 +72,20 @@ class MGCBasic {
                     if (matchToken(lookahead, RPAREN)) {
                         _total += " ) ";
                     }
+                    if (matchToken(lookahead, QUOTESYM)) {
+                        nexttoken();
+                        do {
+                            _total += curr->str + " ";
+                            nexttoken();
+                        } while (!matchToken(lookahead, QUOTESYM));
+                        valueMaps["string"][_id] = _total;
+                        return;
+                    }
                     if (matchToken(lookahead, IDSYM)) {
-                        if (valueMap.find(curr->str) == valueMap.end()) {
+                        if (getTypeFromVarname(curr->str) == "nf") {
                             cout<<"Invalid identifier supplied on line: "<<curr->lineno<<", near: "<<curr->str<<endl;
                         } else {
-                            _total += valueMap[curr->str] + " ";
+                            _total += getValueFromVarname(curr->str) + " ";
                         }
                     } else if (matchToken(lookahead, NUM)) {
                         _total += curr->str + " ";
@@ -72,7 +98,7 @@ class MGCBasic {
                 if (isExpression) {
                     _total = to_string(eval(_total));
                 }
-                valueMap.put(_id, _total);
+                valueMaps[getTypeFromVarname(_id)].put(_id, _total);
             }
         }
     }
@@ -83,7 +109,7 @@ class MGCBasic {
                 string firstVal, secondVal, relop;
                 do {
                     if (matchToken(curr->tok, IDSYM))
-                        firstVal += valueMap[curr->str];
+                        firstVal += valueMaps[getTypeFromVarname(curr->str)][curr->str];
                     if (matchToken(curr->tok, NUM))
                         firstVal += curr->str;
                     nexttoken();
@@ -92,7 +118,7 @@ class MGCBasic {
                 nexttoken();
                 do {
                     if (matchToken(curr->tok, IDSYM))
-                        secondVal += valueMap[curr->str];
+                        secondVal += valueMaps[getTypeFromVarname(curr->str)][curr->str];
                     if (matchToken(curr->tok, NUM))
                         secondVal += curr->str;
                     nexttoken();
@@ -115,25 +141,30 @@ class MGCBasic {
 
     void handlePrint() {
         if (match(PRINTSYM)) {
-            if (matchToken(lookahead, QUOTESYM)) {
-                nexttoken();
-                string value;
-                while (!matchToken(lookahead, QUOTESYM) && !matchToken(lookahead, SEMICOLON) && curr->next != nullptr) {
-                    value += curr->str + " ";
+            while (!matchToken(lookahead, SEMICOLON)) {
+                if (matchToken(lookahead, QUOTESYM)) {
+                    nexttoken();
+                    string value;
+                    while (!matchToken(lookahead, QUOTESYM) && curr->next != nullptr) {
+                        value += curr->str + " ";
+                        nexttoken();
+                    }
+                    cout<<value<<endl;
+                } else if (matchToken(lookahead, IDSYM)) {
+                    string value;
+                    value += valueMaps[getTypeFromVarname(curr->str)][curr->str] + " ";
+                    nexttoken();
+                    cout<<value<<" ";
+                } else if (matchToken(lookahead, NUM)) {
+                    cout<<curr->str<<" ";
+                    nexttoken();
+                } else if (matchToken(lookahead, COMMA)) {
                     nexttoken();
                 }
-                cout<<value<<endl;
-            }
-            if (matchToken(lookahead, IDSYM)) {
-                string value;
-                while (!matchToken(lookahead, SEMICOLON) && curr->next != nullptr) {
-                    if (matchToken(lookahead, IDSYM))
-                        value += valueMap[curr->str] + " ";
-                    nexttoken();
-                }
-                cout<<value<<endl;
+                if (curr == nullptr) { cout<<endl; return; }
             }
         }
+        cout<<endl;
     }
 
     int handleFor(vector<TokenList*>& lines, int lp) {
@@ -145,20 +176,20 @@ class MGCBasic {
         if (match(FORSYM)) {
             if (matchToken(lookahead, IDSYM)) {
                 varname = curr->str;
-                valueMap[varname] = to_string(0);
+                valueMaps["int"][varname] = to_string(0);
                 nexttoken();
                 if (match(ASSIGNSYM)) {
                     if (matchToken(lookahead, NUM)) {
                         count = atoi(curr->str.c_str());
-                        valueMap[varname] = curr->str;
+                        valueMaps["int"][varname] = curr->str;
                         nexttoken();
                         if (match(TOSYM)) {
                             if (matchToken(lookahead, NUM)) {
                                 finish = atoi(curr->str.c_str());
                                 nexttoken();
                             } else if (matchToken(lookahead, IDSYM)) {
-                                if (valueMap.find(curr->str) != valueMap.end()) {
-                                    finish = atoi(valueMap[curr->str].c_str());
+                                if (valueMaps["int"].find(curr->str) != valueMaps["int"].end()) {
+                                    finish = atoi(valueMaps["int"][curr->str].c_str());
                                     nexttoken();
                                 } else {
                                     cout<<"Error: Unknown identifier: "<<curr->str<<endl;
@@ -197,11 +228,38 @@ class MGCBasic {
             while (count <= finish) {
                 interpret(scope);
                 count += stepping;
-                valueMap[varname] = to_string(count);
+                valueMaps["int"][varname] = to_string(count);
             }
             return sl;
         }
         return 0;
+    }
+
+    void handleDim() {
+        string identifier, valuetype;
+        if (match(DIM)) {
+            if (matchToken(lookahead, IDSYM)) {
+                identifier = curr->str;
+                nexttoken();
+                if (match(AS)) {
+                    valuetype = curr->str;
+                    if (valueMaps.find(valuetype) == valueMaps.end()) {
+                        cout<<"Error: uknown type: "<<valuetype<<endl;
+                        return;
+                    } else {
+                        valueMaps[valuetype][identifier] = "";
+                        return;
+                    }
+                } else {
+                    cout<<"Error: Expected 'as', Found: "<<curr->str<<endl;
+                    return;
+                }
+            } else {
+                cout<<"Error: Expected identifier, instead found: "<<tokenNames[curr->tok]<<endl;
+            }
+        } else {
+            cout<<"[Staring Plattypoose error.]"<<endl;
+        }
     }
 
     void handleInput() {
@@ -209,7 +267,7 @@ class MGCBasic {
         if (matchToken(lookahead, IDSYM)) {
             string input;
             getline(cin, input);
-            valueMap[curr->str] = input;
+            valueMaps[getTypeFromVarname(curr->str)][curr->str] = input;
         } else {
             cout<<"Error: expected identifier on line: "<<curr->lineno<<", near "<<curr->str<<endl;
         }
@@ -238,6 +296,9 @@ class MGCBasic {
             }
            
             switch(lookahead) {
+                case DIM:
+                    handleDim();
+                    break;
                 case IDSYM:
                     handleIdSym();
                     break;
@@ -306,7 +367,9 @@ class MGCBasic {
     }
 public:
     MGCBasic() {
-
+        valueMaps.put("int", IterableMap<string,string>());
+        valueMaps.put("real", IterableMap<string,string>());
+        valueMaps.put("string", IterableMap<string,string>());
     }
     void runProgram(vector<string>& program) {
         vector<TokenList*> tokenized = lex.analyze(program);
@@ -343,8 +406,10 @@ public:
                 readSourceFromFile(filename);
                 cout<<filename<<": loaded."<<endl;
             } else if (inputline == ".symbols") {
-                for (auto t : valueMap) {
-                    cout<<t.first<<": "<<t.second<<endl;
+                for (auto t : valueMaps) {
+                    cout<<t.first<<": "<<endl;
+                    for (auto m : t.second)
+                        cout<<m.first<<": "<<m.second<<endl;
                 }
             } else if (inputline == ".tokens") {
                 for (auto t : program) {
@@ -354,6 +419,9 @@ public:
                 if (!program.empty()) {
                     program.clear();
                     source.clear();
+                    valueMaps["int"].clear();
+                    valueMaps["real"].clear();
+                    valueMaps["string"].clear();
                 }
                 autoline = 10;
             } else if (inputline == ".keywords") {

@@ -127,8 +127,14 @@ class IterableMap {
             tombstones = 0;
         }
         IterableMap(const IterableMap& o) {
-            for (auto it = o.begin(); it != o.end(); it++) {
-                put((*it).first, (*it).second);
+            maxn = o.maxn;
+            n = 0;
+            table = new MapEntry[maxn];
+            tombstones = 0;
+            if (!o.empty()) {
+                for (auto it = o.begin(); it != o.end(); it++) {
+                    put((*it).first, (*it).second);
+                }
             }
         }
         ~IterableMap() {
@@ -152,6 +158,9 @@ class IterableMap {
             table[idx].value = value;
             table[idx].empty = false;
             n++;
+        }
+        bool empty() const {
+            return n == 0;
         }
         int size() const {
             return n;
@@ -192,15 +201,17 @@ class IterableMap {
             }
         }
         Iterator begin() {
+            if (empty()) return end();
             return Iterator(table);
         }
         Iterator end() {
             return Iterator(table+maxn);
         }
-        const Iterator cbegin() const {
+        const Iterator begin() const {
+            if (empty()) return end();
             return Iterator(table);
         }
-        const Iterator cend() const {
+        const Iterator end() const {
             return Iterator(table+maxn);
         }
         V& operator[](K key) {
@@ -216,6 +227,24 @@ class IterableMap {
                 m++;
             }
             return table[idx].value;
+        }
+        void clear() {
+            for (int i = 0; i < maxn; i++) {
+                table[i].empty = true;
+                table[i].tombstone = false;
+            }
+        }
+        IterableMap operator=(const IterableMap& o) {
+            maxn = o.maxn;
+            n = 0;
+            table = new MapEntry[maxn];
+            tombstones = 0;
+            if (!o.empty()) {
+                for (auto it = o.begin(); it != o.end(); it++) {
+                    put((*it).first, (*it).second);
+                }
+            }
+            return *this;
         }
 };
 

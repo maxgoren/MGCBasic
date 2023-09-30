@@ -1,6 +1,9 @@
-10 let prev := 0;
-15 let curr := 1;
-20 let fib := prev + curr;
+2 dim prev as int;
+3 dim curr as int;
+4 dim fib as int;
+10 prev := 0;
+15 curr := 1;
+20 fib := prev + curr;
 25 for i := 1 to 10 step 1
 30   prev := curr;
 35   curr := fib;
