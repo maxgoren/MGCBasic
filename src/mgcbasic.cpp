@@ -24,13 +24,14 @@ SOFTWARE.
 #include <iostream>
 #include <vector>
 #include "include/mgcbasic_interpreter.hpp"
+#include "include/mgcbasic_globals.hpp"
 using namespace std;
 
-const string NAME = "MGCBasic";
-const string VERSION = "0.1b";
 void banner() {
-    cout<<NAME<<" "<<VERSION<<" (c) 2023 maxgcoding.com"<<endl;
-    cout<<"-------------------------------------"<<endl;
+    string m_banner = m_NAME + " " + m_VERSION + " (c) 2023 maxgcoding.com";
+    cout<<m_banner<<endl;
+    for (int i = 0; i < m_banner.length(); i++) cout<<"=";
+    cout<<endl;
 }
 
 int main(int argc, char* argv[]) {

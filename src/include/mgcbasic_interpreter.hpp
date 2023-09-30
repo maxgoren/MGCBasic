@@ -149,13 +149,14 @@ class MGCBasic {
                     cout<<m_value;
                 } else if (matchToken(lookahead, QUOTESYM)) {
                     nexttoken();
-                    while (!matchToken(lookahead, QUOTESYM) && curr->next != nullptr) {
+                    while (curr) {
                         if (!matchToken(lookahead, COMMA))
                             m_value += curr->str + " ";
                         nexttoken();
-                        if (matchToken(lookahead, QUOTESYM)) nexttoken();
+                        if (matchToken(lookahead, QUOTESYM)) break;
                     }
                     cout<<m_value;
+                    nexttoken();
                 } else if (matchToken(lookahead, IDSYM)) {
                     m_value += valueMaps[getTypeFromVarname(curr->str)][curr->str] + " ";
                     nexttoken();
@@ -287,14 +288,19 @@ class MGCBasic {
         cout<<endl;
     }
 
-    void m_repl_man() {
+    void replPrompt(string& inputline) {
+        if (matchToken(lookbehind, PRINTSYM)) cout<<"\n";
+        cout<<m_PROMPT<<"> ";
+        getline(cin, inputline);
+    }
+
+    void replMan() {
         int autoline = 10;
         bool running = true;
         string inputline;
         
         while (running) {
-            cout<<"\nmgcb> ";
-            getline(cin, inputline);
+            replPrompt(inputline);
             if (inputline == ".done" || inputline == ".quit" || inputline == ".exit")
                 break;
             else if (inputline == ".run") {
@@ -356,6 +362,7 @@ class MGCBasic {
         bool hasElse = false;
         for(int lp = 0; lp < lines.size(); lp++) {
             TokenList* lineStream = lines[lp];
+            if (lp > 0) lookbehind = lines[lp-1]->tok;
             initparser(lineStream);
             if (matchToken(lookahead, NUM)) {
                 nexttoken();
@@ -453,7 +460,7 @@ public:
     }
 
     void REPL() {
-        m_repl_man();
+        replMan();
     }
     
 };

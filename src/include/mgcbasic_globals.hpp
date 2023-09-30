@@ -54,4 +54,8 @@ bool matchToken(Token a, Token b) {
     return a == b;
 }
 
+const string m_PROMPT = "mgcb";
+const string m_NAME = "MGCBasic";
+const string m_VERSION = "0.1b";
+
 #endif

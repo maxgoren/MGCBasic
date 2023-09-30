@@ -9,6 +9,7 @@ using std::endl;
 
 TokenList* curr;
 Token lookahead;
+Token lookbehind;
 bool ready;
 
 void error(TokenList* token) {
