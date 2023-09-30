@@ -96,8 +96,7 @@ void Lexer::initKeywords() {
     keywords["step"] = STEP;
     keywords["dim"] = DIM;
     keywords["as"] = AS;
-    keywords["int"] = INT;
-    keywords["real"] = REAL;
+    keywords["num"] = NUM;
     keywords["string"] = STRING;
     keywords[","] = COMMA;
 }

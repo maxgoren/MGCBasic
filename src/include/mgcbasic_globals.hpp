@@ -31,7 +31,7 @@ enum Token {
     ERROR, LPAREN, RPAREN, THENSYM, ENDSYM, LETSYM, IFSYM, PRINTSYM, 
     NUM, ADD, SUB, MUL, DIV, EQ, NOTEQ, GT, LT, LTEQ, GTEQ, TAB, WHITESPACE,
     QUOTESYM, SEMICOLON, IDSYM, ASSIGNSYM, TRUESYM, FALSESYM, FORSYM, NEXTSYM, 
-    GOTO, INPUT, ELSESYM, TOSYM, STEP, DIM, AS, STRING, INT, REAL, COMMA
+    GOTO, INPUT, ELSESYM, TOSYM, STEP, DIM, AS, STRING, COMMA
 };
 
 vector<string> tokenNames = {
@@ -39,7 +39,7 @@ vector<string> tokenNames = {
     "NUM", "ADD", "SUB", "MUL", "DIV", "EQ", "NOTEQ", "GT", "LT", "LTEQ", "GTEQ", "TAB", 
     "WHITESPACE", "QUOTESYM", "SEMICOLON", "IDSYM", "ASSIGNSYM", "TRUESYM", "FALSESYM", 
     "FORSYM", "NEXTSYM", "GOTO", "INPUT", "ELSESYM", "TOSYM", "STEP", "DIM", "AS", 
-    "STRING", "INT", "REAL", "COMMA" };
+    "STRING", "COMMA" };
 
 struct TokenList {
     Token tok;

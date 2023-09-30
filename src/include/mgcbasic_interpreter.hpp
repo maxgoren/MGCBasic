@@ -176,20 +176,20 @@ class MGCBasic {
         if (match(FORSYM)) {
             if (matchToken(lookahead, IDSYM)) {
                 varname = curr->str;
-                valueMaps["int"][varname] = to_string(0);
+                valueMaps["num"][varname] = to_string(0);
                 nexttoken();
                 if (match(ASSIGNSYM)) {
                     if (matchToken(lookahead, NUM)) {
                         count = atoi(curr->str.c_str());
-                        valueMaps["int"][varname] = curr->str;
+                        valueMaps["num"][varname] = curr->str;
                         nexttoken();
                         if (match(TOSYM)) {
                             if (matchToken(lookahead, NUM)) {
                                 finish = atoi(curr->str.c_str());
                                 nexttoken();
                             } else if (matchToken(lookahead, IDSYM)) {
-                                if (valueMaps["int"].find(curr->str) != valueMaps["int"].end()) {
-                                    finish = atoi(valueMaps["int"][curr->str].c_str());
+                                if (valueMaps["num"].find(curr->str) != valueMaps["num"].end()) {
+                                    finish = atoi(valueMaps["num"][curr->str].c_str());
                                     nexttoken();
                                 } else {
                                     cout<<"Error: Unknown identifier: "<<curr->str<<endl;
@@ -228,7 +228,7 @@ class MGCBasic {
             while (count <= finish) {
                 interpret(scope);
                 count += stepping;
-                valueMaps["int"][varname] = to_string(count);
+                valueMaps["num"][varname] = to_string(count);
             }
             return sl;
         }
@@ -367,8 +367,7 @@ class MGCBasic {
     }
 public:
     MGCBasic() {
-        valueMaps.put("int", IterableMap<string,string>());
-        valueMaps.put("real", IterableMap<string,string>());
+        valueMaps.put("num", IterableMap<string,string>());
         valueMaps.put("string", IterableMap<string,string>());
     }
     void runProgram(vector<string>& program) {
