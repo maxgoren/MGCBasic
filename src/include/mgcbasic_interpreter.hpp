@@ -41,6 +41,7 @@ class MGCBasic {
     avlmap<int, TokenList*> m_program;
     avlmap<int, string> m_source;
     IterableMap<string, IterableMap<string,string>> m_valueMaps;
+    IterableMap<Token, string> m_mathOpers;
     int autoline;
     bool replRunning;
     string getTypeFromVarname(string& varname) const;
@@ -80,7 +81,18 @@ public:
     }
 };
 
+template<> struct hashfn<Token> {
+    size_t operator()(Token c) {
+        return size_t(c);
+    }
+};
+
 MGCBasic::MGCBasic() {
+    m_mathOpers[MUL] = "*";
+    m_mathOpers[ADD] = "+";
+    m_mathOpers[SUB] = "-";
+    m_mathOpers[DIV] = "/";
+    m_mathOpers[SQUARED] = "**";
     m_valueMaps.put("num", IterableMap<string,string>());
     m_valueMaps.put("string", IterableMap<string,string>());
 }
@@ -106,6 +118,7 @@ string& MGCBasic::getValueFromVarname(string& varname) {
 /// execute assignment statements
 void MGCBasic::handleIdSym() {
     bool isExpression = false;
+    string type_guess = "num";
     if (matchToken(lookahead, IDSYM)) {
         string _id = curr->str;
         string _total = "";
@@ -114,11 +127,12 @@ void MGCBasic::handleIdSym() {
             while (!matchToken(lookahead, SEMICOLON)) {
                 if (matchToken(lookahead, LPAREN)) {
                     _total += " ( ";
-                }
-                if (matchToken(lookahead, RPAREN)) {
+                } else if (matchToken(lookahead, RPAREN)) {
                     _total += " ) ";
-                }
-                if (matchToken(lookahead, QUOTESYM)) {
+                } else if (matchToken(lookahead, NUM)) {
+                    _total += curr->str + " ";
+                    type_guess = "num";
+                } else if (matchToken(lookahead, QUOTESYM)) {
                     nexttoken();
                     do {
                         _total += curr->str + " ";
@@ -126,17 +140,16 @@ void MGCBasic::handleIdSym() {
                     } while (!matchToken(lookahead, QUOTESYM));
                     m_valueMaps["string"][_id] = _total;
                     return;
-                }
-                if (matchToken(lookahead, IDSYM)) {
+                } else if (matchToken(lookahead, IDSYM)) {
                     if (getTypeFromVarname(curr->str) == "nf") {
                         token_error(curr);
                     } else {
                         _total += getValueFromVarname(curr->str) + " ";
                     }
-                } else if (matchToken(lookahead, NUM)) {
-                    _total += curr->str + " ";
-                } else if (matchToken(lookahead, ADD) || matchToken(lookahead, SUB) || matchToken(lookahead, MUL) || matchToken(lookahead, DIV)) {
+                } else if (matchToken(lookahead, ADD) || matchToken(lookahead, MUL) || matchToken(lookahead, SQUARED) ||
+                           matchToken(lookahead, SUB) || matchToken(lookahead, DIV)) {
                     isExpression = true;
+                    type_guess = "num";
                     _total += curr->str + " ";
                 }
                 nexttoken();
@@ -144,7 +157,7 @@ void MGCBasic::handleIdSym() {
             if (isExpression) {
                 _total = to_string(eval(_total));
             }
-            m_valueMaps[getTypeFromVarname(_id)].put(_id, _total);
+            m_valueMaps[type_guess].put(_id, _total);
         }
     }
 }
@@ -194,7 +207,6 @@ void MGCBasic::handlePrint() {
             if (matchToken(lookahead, NUM)) {
                 m_value += curr->str + " ";
                 nexttoken();
-                cout<<m_value;
             } else if (matchToken(lookahead, QUOTESYM)) {
                 nexttoken();
                 while (curr) {
@@ -203,18 +215,17 @@ void MGCBasic::handlePrint() {
                     nexttoken();
                     if (matchToken(lookahead, QUOTESYM)) break;
                 }
-                cout<<m_value;
                 nexttoken();
             } else if (matchToken(lookahead, IDSYM)) {
                 m_value += m_valueMaps[getTypeFromVarname(curr->str)][curr->str] + " ";
                 nexttoken();
-                cout<<m_value<<" ";
             } else if (matchToken(lookahead, COMMA)) {
                 nexttoken();
             }
-            if (curr == nullptr || matchToken(lookahead, SEMICOLON)) { return; }
+            if (curr == nullptr || matchToken(lookahead, SEMICOLON)) { break; }
         }
     }
+    cout<<m_value;
 }
 
 /// executes print statement and adds carriage return
@@ -323,10 +334,11 @@ void MGCBasic::handleInput() {
 
 /// display all variable names and their values for the currently loaded program
 void MGCBasic::showSymbols() {
+    cout<<"Currently Assigned Variables: \n";
     for (auto maps : m_valueMaps) {
-        cout<<maps.first<<": "<<endl;
+        cout<<maps.first<<" types: "<<endl;
         for (auto symbols : maps.second)
-            cout<<symbols.first<<": "<<symbols.second<<endl;
+            cout<<" --> "<<symbols.first<<": "<<symbols.second<<endl;
     }
 }
 

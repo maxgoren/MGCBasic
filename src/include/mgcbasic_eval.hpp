@@ -25,6 +25,7 @@ SOFTWARE.
 #ifndef mgcbasic_eval_hpp
 #define mgcbasic_eval_hpp
 #include <iostream>
+#include <cmath>
 #include "Stack.hpp"
 using std::pair;
 using std::make_pair;
@@ -46,8 +47,10 @@ double eval(string expr) {
     Stack<double> vals;
     Stack<char> ops;
     for (int i = 0; i < str.size(); i++) {
-        if      (str[i] == '(' || str[i] == '+')   ops.push(str[i]);
-        else if (str[i] == '*' || str[i] == '/')   ops.push(str[i]);
+        if      (str[i] == '(') {
+        } else if (str[i] == '+') ops.push(str[i]);
+        else if (str[i] == '*') ops.push(str[i]);
+        else if (str[i] == '/') ops.push(str[i]);
         else if (str[i] == '-' && str[i+1] == ' ') ops.push(str[i]);
         else if (str[i] == ')') { 
             char op = ops.pop();

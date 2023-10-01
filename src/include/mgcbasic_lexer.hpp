@@ -67,6 +67,7 @@ void Lexer::initKeywords() {
     keywords["-"] = SUB;
     keywords["*"] = MUL;
     keywords["/"] = DIV;
+    keywords["**"] = SQUARED;
     keywords[" "] = WHITESPACE;
     keywords["\t"] = TAB;
     keywords["=="] = EQ;
@@ -76,25 +77,25 @@ void Lexer::initKeywords() {
     keywords[">="] = GTEQ;
     keywords["<="] = LTEQ;
     keywords[":="] = ASSIGNSYM;
-    keywords["if"] = IFSYM;
+    keywords[","] = COMMA;
     keywords["let"] = LETSYM;
     keywords["print"] = PRINTSYM;
-    keywords["goto"] = GOTO;
-    keywords["true"] = TRUESYM;
-    keywords["false"] = FALSESYM;
-    keywords["then"] = THENSYM;
-    keywords["end"] = ENDSYM;
+    keywords["println"] = PRINTLN;
     keywords["input"] = INPUT;
+    keywords["goto"] = GOTO;
     keywords["for"] = FORSYM;
     keywords["next"] = NEXTSYM;
     keywords["to"] = TOSYM;
     keywords["step"] = STEP;
+    keywords["if"] = IFSYM;
+    keywords["true"] = TRUESYM;
+    keywords["false"] = FALSESYM;
+    keywords["then"] = THENSYM;
+    keywords["end"] = ENDSYM;
     keywords["dim"] = DIM;
     keywords["as"] = AS;
     keywords["num"] = NUM;
     keywords["string"] = STRING;
-    keywords[","] = COMMA;
-    keywords["println"] = PRINTLN;
 }
 
 /// Retrieves appropriate token for provided symbol

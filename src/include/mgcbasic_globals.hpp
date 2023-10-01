@@ -31,7 +31,7 @@ enum Token {
     ERROR, LPAREN, RPAREN, THENSYM, ENDSYM, LETSYM, IFSYM, PRINTSYM, 
     NUM, ADD, SUB, MUL, DIV, EQ, NOTEQ, GT, LT, LTEQ, GTEQ, TAB, WHITESPACE,
     QUOTESYM, SEMICOLON, IDSYM, ASSIGNSYM, TRUESYM, FALSESYM, FORSYM, NEXTSYM, 
-    GOTO, INPUT, ELSESYM, TOSYM, STEP, DIM, AS, STRING, COMMA, PRINTLN
+    GOTO, INPUT, ELSESYM, TOSYM, STEP, DIM, AS, STRING, COMMA, PRINTLN, SQUARED
 };
 
 vector<string> tokenNames = {
@@ -39,10 +39,10 @@ vector<string> tokenNames = {
     "NUM", "ADD", "SUB", "MUL", "DIV", "EQ", "NOTEQ", "GT", "LT", "LTEQ", "GTEQ", "TAB", 
     "WHITESPACE", "QUOTESYM", "SEMICOLON", "IDSYM", "ASSIGNSYM", "TRUESYM", "FALSESYM", 
     "FORSYM", "NEXTSYM", "GOTO", "INPUT", "ELSESYM", "TOSYM", "STEP", "DIM", "AS", 
-    "STRING", "COMMA", "PRINTLN" };
+    "STRING", "COMMA", "PRINTLN", "SQUARED" };
 
 const string m_PROMPT = "mgcb";
 const string m_NAME = "MGCBasic";
-const string m_VERSION = "0.1b";
+const string m_VERSION = "0.3b";
 
 #endif
