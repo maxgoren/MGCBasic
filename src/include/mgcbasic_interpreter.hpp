@@ -194,16 +194,13 @@ bool MGCBasic::handleIf() {
             
             //relop, expression, or test for true?
             if (matchToken(lookahead, LT) || matchToken(lookahead, GT) || matchToken(lookahead, EQ) || matchToken(lookahead, NOTEQ)) {
-                cout<<"Relop"<<endl;
                 relop = curr->str;
                 nexttoken();
             } else if (matchToken(lookahead, ADD) || matchToken(lookahead, MUL) || matchToken(lookahead, SUB) || matchToken(lookahead, DIV)) {
-                cout<<"Expression"<<endl;
                 isExpression = true;
                 exprop = curr->str;
                 nexttoken();
             } else if (matchToken(lookahead, RPAREN)) {
-                cout<<"Test for true"<<endl;
                 return atoi(firstVal.c_str());
             }
             //get right side    
@@ -478,7 +475,6 @@ void MGCBasic::interpret(vector<TokenList*>& lines) {
                 break;
             case IFSYM:
                 result = handleIf();
-                cout<<(result ? "true":"false")<<endl;
                 if (result == false) {
                     nextLine = lp;
                     while (nextLine < lines.size() && !matchToken(lines[nextLine]->next->tok, ENDSYM)) {
