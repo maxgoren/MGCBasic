@@ -44,8 +44,10 @@ class MGCBasic {
     IterableMap<Token, string> m_mathOpers;
     int autoline;
     bool replRunning;
+    typedef pair<string, string> TypedValue;
     string getTypeFromVarname(string& varname) const;
     string& getValueFromVarname(string& varname);
+    TypedValue handleStatement();
     void handleIdSym();
     bool handleIf();
     void handlePrint();
@@ -57,7 +59,7 @@ class MGCBasic {
     void replPrompt(string& inputline);
     void replManager();
     void interpret(vector<TokenList*>& lines);
-    void readSourceFromFile(string filename);
+    bool readSourceFromFile(string filename);
     vector<TokenList*> prepForInterp();
     void clearProgram();
     void showSymbols();
@@ -72,9 +74,10 @@ public:
         interpret(tokenized);
     }
     void runFromFile(string filename) {
-        readSourceFromFile(filename);
-        vector<TokenList*> r2r = prepForInterp();
-        interpret(r2r);
+        if (readSourceFromFile(filename)) {
+            vector<TokenList*> r2r = prepForInterp();
+            interpret(r2r);
+        }
     }
     void REPL() {
         replManager();
@@ -115,48 +118,59 @@ string& MGCBasic::getValueFromVarname(string& varname) {
     return m_valueMaps[valtype][varname];
 }
 
+
+typename MGCBasic::TypedValue MGCBasic::handleStatement() {
+    bool isExpression = false;
+    string _total = "";
+    string type_guess = "num";
+    while (!matchToken(lookahead, SEMICOLON)) {
+        if (matchToken(lookahead, LPAREN)) {
+            _total += " ( ";
+        } else if (matchToken(lookahead, RPAREN)) {
+            _total += " ) ";
+        } else if (matchToken(lookahead, NUM)) {
+            _total += curr->str + " ";
+            type_guess = "num";
+        } else if (matchToken(lookahead, QUOTESYM)) {
+            nexttoken();
+            do {
+                _total += curr->str + " ";
+                nexttoken();
+            } while (!matchToken(lookahead, QUOTESYM));
+            break;
+        } else if (matchToken(lookahead, IDSYM)) {
+            if (getTypeFromVarname(curr->str) == "nf") {
+                token_error(curr);
+            } else {
+                _total += getValueFromVarname(curr->str) + " ";
+            }
+        } else if (matchToken(lookahead, ADD) || matchToken(lookahead, MUL) ||
+                    matchToken(lookahead, SUB) || matchToken(lookahead, DIV)) {
+            isExpression = true;
+            type_guess = "num";
+            _total += curr->str + " ";
+        } else {
+            token_error(curr);
+        }
+        nexttoken();
+    }
+    if (isExpression) {
+        _total = to_string(eval(_total));
+    }
+    return make_pair(type_guess, _total);
+}
+
 /// execute assignment statements
 void MGCBasic::handleIdSym() {
-    bool isExpression = false;
     string type_guess = "num";
     if (matchToken(lookahead, IDSYM)) {
         string _id = curr->str;
         string _total = "";
         match(IDSYM);
         if (match(ASSIGNSYM)) {
-            while (!matchToken(lookahead, SEMICOLON)) {
-                if (matchToken(lookahead, LPAREN)) {
-                    _total += " ( ";
-                } else if (matchToken(lookahead, RPAREN)) {
-                    _total += " ) ";
-                } else if (matchToken(lookahead, NUM)) {
-                    _total += curr->str + " ";
-                    type_guess = "num";
-                } else if (matchToken(lookahead, QUOTESYM)) {
-                    nexttoken();
-                    do {
-                        _total += curr->str + " ";
-                        nexttoken();
-                    } while (!matchToken(lookahead, QUOTESYM));
-                    m_valueMaps["string"][_id] = _total;
-                    return;
-                } else if (matchToken(lookahead, IDSYM)) {
-                    if (getTypeFromVarname(curr->str) == "nf") {
-                        token_error(curr);
-                    } else {
-                        _total += getValueFromVarname(curr->str) + " ";
-                    }
-                } else if (matchToken(lookahead, ADD) || matchToken(lookahead, MUL) || matchToken(lookahead, SQUARED) ||
-                           matchToken(lookahead, SUB) || matchToken(lookahead, DIV)) {
-                    isExpression = true;
-                    type_guess = "num";
-                    _total += curr->str + " ";
-                }
-                nexttoken();
-            }
-            if (isExpression) {
-                _total = to_string(eval(_total));
-            }
+            TypedValue result = handleStatement();
+            type_guess = result.first;
+            _total = result.second;
             m_valueMaps[type_guess].put(_id, _total);
         }
     }
@@ -164,18 +178,35 @@ void MGCBasic::handleIdSym() {
 
 /// Execute If statements
 bool MGCBasic::handleIf() {
+    bool isExpression = false;
+    string firstVal, secondVal, relop, exprop;
     if (match(IFSYM)) {
         if (match(LPAREN)) {
-            string firstVal, secondVal, relop;
+            //get left sifde;
             do {
                 if (matchToken(curr->tok, IDSYM))
                     firstVal += m_valueMaps[getTypeFromVarname(curr->str)][curr->str];
                 if (matchToken(curr->tok, NUM))
                     firstVal += curr->str;
                 nexttoken();
-            } while (!matchToken(lookahead, LT) && !matchToken(lookahead, GT) && !matchToken(lookahead, EQ) && !matchToken(lookahead, NOTEQ));
-            relop = curr->str;
-            nexttoken();
+            } while (!matchToken(lookahead, RPAREN) && !matchToken(lookahead, LT) && !matchToken(lookahead, GT) && !matchToken(lookahead, EQ) && !matchToken(lookahead, NOTEQ) &&
+                     !matchToken(lookahead, ADD) && !matchToken(lookahead, MUL) && !matchToken(lookahead, SUB) && !matchToken(lookahead, DIV));
+            
+            //relop, expression, or test for true?
+            if (matchToken(lookahead, LT) || matchToken(lookahead, GT) || matchToken(lookahead, EQ) || matchToken(lookahead, NOTEQ)) {
+                cout<<"Relop"<<endl;
+                relop = curr->str;
+                nexttoken();
+            } else if (matchToken(lookahead, ADD) || matchToken(lookahead, MUL) || matchToken(lookahead, SUB) || matchToken(lookahead, DIV)) {
+                cout<<"Expression"<<endl;
+                isExpression = true;
+                exprop = curr->str;
+                nexttoken();
+            } else if (matchToken(lookahead, RPAREN)) {
+                cout<<"Test for true"<<endl;
+                return atoi(firstVal.c_str());
+            }
+            //get right side    
             do {
                 if (matchToken(curr->tok, IDSYM))
                     secondVal += m_valueMaps[getTypeFromVarname(curr->str)][curr->str];
@@ -183,6 +214,14 @@ bool MGCBasic::handleIf() {
                     secondVal += curr->str;
                 nexttoken();
             } while (!matchToken(lookahead, RPAREN));
+        } else {
+            token_error(curr);
+            cout<<"Syntax Error: Missing parentheses required."<<endl;
+            return false;
+        }
+        if (isExpression) {
+                return eval(firstVal + " " + exprop + " " + secondVal);
+        } else {
             if (relop == "<")
                 return (atoi(firstVal.c_str()) < atoi(secondVal.c_str()));
             if (relop == ">")
@@ -191,10 +230,7 @@ bool MGCBasic::handleIf() {
                 return (atoi(firstVal.c_str()) == atoi(secondVal.c_str()));
             if (relop == "!=")
                 return (atoi(firstVal.c_str()) != atoi(secondVal.c_str()));
-        } else {
-            cout<<"Syntax error: missing '(' on line: "<<curr->lineno<<endl;
-            return false;
-        }
+        } 
     }
     return false;
 }
@@ -269,15 +305,15 @@ int MGCBasic::handleFor(vector<TokenList*>& lines, int lp) {
                             stepping = atoi(curr->str.c_str());
                             ready = true;
                         } else token_error(curr);
-                    } else token_error(curr);  // Standing here it occurs to me, that who
+                    } else token_error(curr);  // Standing here it occurs to me
                 } else token_error(curr);     //    (_)
             } else token_error(curr);        // -\_(-o-)-\_
         } else token_error(curr);           //     _| |_
-    } else token_error(curr);              //would have thought for loops could go so wrong
+    } else token_error(curr);              // nevermind.
     
-    //something something code quality being
-    //equally proportional to area under the curve
-    //of nested statements.
+    //gather the lines from inside the loop block
+    //and recursively call interpret on that piece
+    //finish number of times.
     if (ready) {
         vector<TokenList*> scope;
         int sl = lp+1;
@@ -303,6 +339,8 @@ void MGCBasic::handleDim() {
             nexttoken();
             if (match(AS)) {
                 valuetype = curr->str;
+                //I know this is overkill for a 2-type type system
+                //conversely it makes _adding_ more types a breeze
                 if (m_valueMaps.find(valuetype) == m_valueMaps.end()) {
                     cout<<"Error: uknown type: "<<valuetype<<endl;
                     return;
@@ -440,6 +478,7 @@ void MGCBasic::interpret(vector<TokenList*>& lines) {
                 break;
             case IFSYM:
                 result = handleIf();
+                cout<<(result ? "true":"false")<<endl;
                 if (result == false) {
                     nextLine = lp;
                     while (nextLine < lines.size() && !matchToken(lines[nextLine]->next->tok, ENDSYM)) {
@@ -463,14 +502,14 @@ void MGCBasic::interpret(vector<TokenList*>& lines) {
     }
 }
 
-void MGCBasic::readSourceFromFile(string filename) {
+bool MGCBasic::readSourceFromFile(string filename) {
     m_program.clear();
     m_source.clear();
     ifstream ifile;
     ifile.open(filename, ios::in);
     if (!ifile.is_open()) {
         cout<<"Error: could not open "<<filename<<endl;
-        exit(0);
+        return false;
     }
     string line;
     while (ifile.good()) {
@@ -483,6 +522,7 @@ void MGCBasic::readSourceFromFile(string filename) {
         m_source.put(atoi(tokenizedLine->str.c_str()), line);
     }
     cout<<filename<<": loaded."<<endl;
+    return true;
 }
 
 vector<TokenList*> MGCBasic::prepForInterp() {

@@ -30,7 +30,7 @@ using namespace std;
 void banner() {
     string m_banner = m_NAME + " " + m_VERSION + " (c) 2023 maxgcoding.com";
     cout<<m_banner<<endl;
-    for (int i = 0; i < m_banner.length(); i++) cout<<"=";
+    for (int i = 0; i <= m_banner.length(); i++) cout<<"=";
     cout<<endl;
 }
 
