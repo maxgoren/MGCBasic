@@ -25,6 +25,7 @@ SOFTWARE.
 #define GLOBALS_HPP
 #include <vector>
 #include <string>
+#include "symboltable/hashfn.hpp"
 using namespace std;
 
 enum Token {
@@ -32,6 +33,12 @@ enum Token {
     NUM, ADD, SUB, MUL, DIV, EQ, NOTEQ, GT, LT, LTEQ, GTEQ, TAB, WHITESPACE,
     QUOTESYM, SEMICOLON, IDSYM, ASSIGNSYM, TRUESYM, FALSESYM, FORSYM, NEXTSYM, 
     GOTO, INPUT, ELSESYM, TOSYM, STEP, DIM, AS, STRING, COMMA, PRINTLN, SQUARED
+};
+
+template<> struct hashfn<Token> {
+    size_t operator()(Token c) {
+        return size_t(c);
+    }
 };
 
 vector<string> tokenNames = {

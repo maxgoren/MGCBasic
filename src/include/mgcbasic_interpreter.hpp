@@ -26,10 +26,12 @@ SOFTWARE.
 #define mgcpl_interpreter_hpp
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include "mgcbasic_parser_utils.hpp"
 #include "mgcbasic_lexer.hpp"
 #include "mgcbasic_eval.hpp"
 #include "symboltable/hashtable.hpp"
+#include "symboltable/hashset.hpp"
 #include "symboltable/avlmap.hpp"
 using std::string;
 using std::cout;
@@ -41,12 +43,14 @@ class MGCBasic {
     avlmap<int, TokenList*> m_program;
     avlmap<int, string> m_source;
     IterableMap<string, IterableMap<string,string>> m_valueMaps;
-    IterableMap<Token, string> m_mathOpers;
+    IterableSet<Token> m_mathOpers;
+    IterableSet<Token> m_relOpers;
     int autoline;
     bool replRunning;
     typedef pair<string, string> TypedValue;
     string getTypeFromVarname(string& varname) const;
     string& getValueFromVarname(string& varname);
+    bool assignDataToVarname(string& varname, string& data, string& value_type);
     TypedValue handleStatement();
     void handleIdSym();
     bool handleIf();
@@ -60,6 +64,7 @@ class MGCBasic {
     void replManager();
     void interpret(vector<TokenList*>& lines);
     bool readSourceFromFile(string filename);
+    void saveCodeToFile(string filename);
     vector<TokenList*> prepForInterp();
     void clearProgram();
     void showSymbols();
@@ -84,18 +89,11 @@ public:
     }
 };
 
-template<> struct hashfn<Token> {
-    size_t operator()(Token c) {
-        return size_t(c);
-    }
-};
-
 MGCBasic::MGCBasic() {
-    m_mathOpers[MUL] = "*";
-    m_mathOpers[ADD] = "+";
-    m_mathOpers[SUB] = "-";
-    m_mathOpers[DIV] = "/";
-    m_mathOpers[SQUARED] = "**";
+    m_mathOpers.put(MUL);  m_relOpers.put(LT);
+    m_mathOpers.put(ADD);  m_relOpers.put(GT);
+    m_mathOpers.put(SUB);  m_relOpers.put(EQ);
+    m_mathOpers.put(DIV);  m_relOpers.put(NOTEQ);
     m_valueMaps.put("num", IterableMap<string,string>());
     m_valueMaps.put("string", IterableMap<string,string>());
 }
@@ -118,6 +116,20 @@ string& MGCBasic::getValueFromVarname(string& varname) {
     return m_valueMaps[valtype][varname];
 }
 
+bool MGCBasic::assignDataToVarname(string& _id, string& _data, string& type_guess) {
+    if (lex.getkeywords().find(_id) != lex.getkeywords().end()) {
+        token_error(curr);
+        cout<<"Syntax Error: "<<_id<<" is a reserved keyword!"<<endl;
+        return false;
+    }
+    if (isdigit(_id[0])) {
+        token_error(curr);
+        cout<<"Syntax Error: variable names must start with a letter"<<endl;
+        return false;
+    }
+    m_valueMaps[type_guess].put(_id, _data);
+    return true;
+}
 
 typename MGCBasic::TypedValue MGCBasic::handleStatement() {
     bool isExpression = false;
@@ -144,8 +156,7 @@ typename MGCBasic::TypedValue MGCBasic::handleStatement() {
             } else {
                 _total += getValueFromVarname(curr->str) + " ";
             }
-        } else if (matchToken(lookahead, ADD) || matchToken(lookahead, MUL) ||
-                    matchToken(lookahead, SUB) || matchToken(lookahead, DIV)) {
+        } else if (m_mathOpers.find(lookahead) != m_mathOpers.end()) {
             isExpression = true;
             type_guess = "num";
             _total += curr->str + " ";
@@ -171,7 +182,35 @@ void MGCBasic::handleIdSym() {
             TypedValue result = handleStatement();
             type_guess = result.first;
             _total = result.second;
-            m_valueMaps[type_guess].put(_id, _total);
+            assignDataToVarname(_id, _total, type_guess);
+        }
+    }
+}
+
+/// Handles the declaring of variable names
+void MGCBasic::handleDim() {
+    string identifier, valuetype;
+    if (match(DIM)) {
+        if (matchToken(lookahead, IDSYM)) {
+            identifier = curr->str;
+            nexttoken();
+            if (match(AS)) {
+                valuetype = curr->str;
+                //I know this is overkill for a 2-type type system
+                //conversely it makes _adding_ more types a breeze
+                if (m_valueMaps.find(valuetype) == m_valueMaps.end()) {
+                    cout<<"Error: uknown type: "<<valuetype<<endl;
+                    return;
+                } else {
+                    m_valueMaps[valuetype][identifier] = "";
+                    return;
+                }
+            } else {
+                token_error(curr);
+                return;
+            }
+        } else {
+            token_error(curr);
         }
     }
 }
@@ -189,14 +228,13 @@ bool MGCBasic::handleIf() {
                 if (matchToken(curr->tok, NUM))
                     firstVal += curr->str;
                 nexttoken();
-            } while (!matchToken(lookahead, RPAREN) && !matchToken(lookahead, LT) && !matchToken(lookahead, GT) && !matchToken(lookahead, EQ) && !matchToken(lookahead, NOTEQ) &&
-                     !matchToken(lookahead, ADD) && !matchToken(lookahead, MUL) && !matchToken(lookahead, SUB) && !matchToken(lookahead, DIV));
+            } while (m_relOpers.find(lookahead) == m_relOpers.end() && m_mathOpers.find(lookahead) == m_mathOpers.end());
             
             //relop, expression, or test for true?
-            if (matchToken(lookahead, LT) || matchToken(lookahead, GT) || matchToken(lookahead, EQ) || matchToken(lookahead, NOTEQ)) {
+            if (m_relOpers.find(lookahead) != m_relOpers.end()) {
                 relop = curr->str;
                 nexttoken();
-            } else if (matchToken(lookahead, ADD) || matchToken(lookahead, MUL) || matchToken(lookahead, SUB) || matchToken(lookahead, DIV)) {
+            } else if (m_mathOpers.find(lookahead) != m_mathOpers.end()) {
                 isExpression = true;
                 exprop = curr->str;
                 nexttoken();
@@ -235,6 +273,7 @@ bool MGCBasic::handleIf() {
 /// Execute print statemets
 void MGCBasic::handlePrint() {
     string m_value;
+    bool isExpression = false;
     if (match(PRINTSYM) || match(PRINTLN)) {
         while (!matchToken(lookahead, SEMICOLON)) {
             if (matchToken(lookahead, NUM)) {
@@ -254,10 +293,17 @@ void MGCBasic::handlePrint() {
                 nexttoken();
             } else if (matchToken(lookahead, COMMA)) {
                 nexttoken();
+            } else if (m_mathOpers.find(lookahead) != m_mathOpers.end()) {
+                isExpression = true;
+                m_value += curr->str + " ";
+                nexttoken();
             }
             if (curr == nullptr || matchToken(lookahead, SEMICOLON)) { break; }
         }
     }
+    if (isExpression) 
+        m_value = eval(m_value);
+    
     cout<<m_value;
 }
 
@@ -327,34 +373,6 @@ int MGCBasic::handleFor(vector<TokenList*>& lines, int lp) {
     return 0;
 }
 
-/// Handles the declaring of variable names
-void MGCBasic::handleDim() {
-    string identifier, valuetype;
-    if (match(DIM)) {
-        if (matchToken(lookahead, IDSYM)) {
-            identifier = curr->str;
-            nexttoken();
-            if (match(AS)) {
-                valuetype = curr->str;
-                //I know this is overkill for a 2-type type system
-                //conversely it makes _adding_ more types a breeze
-                if (m_valueMaps.find(valuetype) == m_valueMaps.end()) {
-                    cout<<"Error: uknown type: "<<valuetype<<endl;
-                    return;
-                } else {
-                    m_valueMaps[valuetype][identifier] = "";
-                    return;
-                }
-            } else {
-                token_error(curr);
-                return;
-            }
-        } else {
-            token_error(curr);
-        }
-    }
-}
-
 /// retrieve input from the user
 void MGCBasic::handleInput() {
     match(INPUT);
@@ -418,10 +436,13 @@ void MGCBasic::replManager() {
         else if (inputline.substr(0, 5) == ".load") 
             readSourceFromFile(inputline.substr(6));
         else if (inputline == ".run") {
-            vector<TokenList*> r2r = prepForInterp();
-            interpret(r2r);
-        }            
-        else handleREPLCode(inputline);
+            if (!m_program.empty()) {
+                vector<TokenList*> r2r = prepForInterp();
+                interpret(r2r);
+            }
+        } else if (inputline.substr(0, 5) == ".save") {
+            saveCodeToFile(inputline.substr(6));
+        } else handleREPLCode(inputline);
     }
 }
 
@@ -445,6 +466,8 @@ void MGCBasic::interpret(vector<TokenList*>& lines) {
         TokenList* lineStream = lines[lp];
         if (lp > 0) lookbehind = lines[lp-1]->tok;
         initparser(lineStream);
+        if (matchToken(lookahead, NUM) && curr->next == nullptr)
+            continue;
         if (matchToken(lookahead, NUM)) {
             nexttoken();
         } else {
@@ -519,6 +542,20 @@ bool MGCBasic::readSourceFromFile(string filename) {
     }
     cout<<filename<<": loaded."<<endl;
     return true;
+}
+
+void MGCBasic::saveCodeToFile(string filename) {
+    ofstream ofile;
+    ofile.open(filename, ios::out);
+    if (ofile.is_open()) {
+        for (auto line : m_source) {
+            ofile << line.second << endl;
+        }
+        ofile.close();
+        cout<<filename<<" saved!"<<endl;
+    } else {
+        cout<<"Error: Couldn't open "<<filename<<" for writing!"<<endl;
+    }
 }
 
 vector<TokenList*> MGCBasic::prepForInterp() {
