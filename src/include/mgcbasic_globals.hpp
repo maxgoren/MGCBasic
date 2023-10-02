@@ -50,6 +50,6 @@ vector<string> tokenNames = {
 
 const string m_PROMPT = "mgcb";
 const string m_NAME = "MGCBasic";
-const string m_VERSION = "0.3b";
+const string m_VERSION = "0.4b";
 
 #endif

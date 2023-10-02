@@ -7,6 +7,6 @@
 25 for i := 1 to 10 step 1
 30   prev := curr;
 35   curr := fib;
-40   print fib;
+40   println fib;
 45   fib := prev + curr;
 50 next i;

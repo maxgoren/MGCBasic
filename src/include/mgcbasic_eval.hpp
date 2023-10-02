@@ -42,7 +42,6 @@ pair<int, double> parseNumber(string str, int spos) {
 /// using dijkstras 2 stack algorithm. supports negative numbers.
 double eval(string expr) {
     string str = "(" + expr + ")";
-    double a, b;
     char op;
     Stack<double> vals;
     Stack<char> ops;
@@ -52,13 +51,20 @@ double eval(string expr) {
         else if (str[i] == '*') ops.push(str[i]);
         else if (str[i] == '/') ops.push(str[i]);
         else if (str[i] == '-' && str[i+1] == ' ') ops.push(str[i]);
+        else if (str[i] == '=' && str[i+1] == '=') ops.push(str[i]);
+        else if (str[i] == '!' && str[i+1] == '=') ops.push(str[i]);
+        else if (str[i] == '<' || str[i] == '>')   ops.push(str[i]);
         else if (str[i] == ')') { 
-            char op = ops.pop();
+            if (!ops.empty()) op = ops.pop();
             double v = vals.pop();
             if      (op == '+') v = vals.pop() + v;
             else if (op == '*') v = vals.pop() * v;
             else if (op == '-') v = vals.pop() - v;
             else if (op == '/') v = vals.pop() / v;
+            else if (op == '!') v = vals.pop() != v;
+            else if (op == '=') v = vals.pop() == v;
+            else if (op == '<') v = vals.pop() < v;
+            else if (op == '>') v = vals.pop() > v;
             vals.push(v);
         } else if (isdigit(str[i]) || (str[i] == '-' && isdigit(str[i+1]))) {
             auto t = parseNumber(str, i);
