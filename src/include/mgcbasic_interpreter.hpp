@@ -136,29 +136,12 @@ bool MGCBasic::assignDataToVarname(string& _id, string& _data, string& type_gues
     return true;
 }
 
-//you can do O(n) operations when N is < 10 till the cows come home. 
-//Were parsing lines of BASIC afterall
-bool MGCBasic::isString() {
-    for (TokenList* t = curr; t != nullptr; t = t->next)
-        if (matchToken(t->tok, QUOTESYM))
-            return true;
-        else if (matchToken(t->tok, IDSYM) && getTypeFromVarname(t->str) == "string")
-            return true;
-    return false;
-}
-
-bool MGCBasic::isExpression() {
-    for (TokenList* t = curr; t != nullptr; t = t->next)
-        if (m_Opers.find(t->tok) != m_Opers.end())
-            return true;
-    return false;
-}
 
 string MGCBasic::handleString() {
     setInterpreterState(PARSING);
     string _total = "";
     if (match(QUOTESYM)) {
-            nexttoken();
+            //nexttoken();
             do {
                 _total += curr->str + " ";
                 nexttoken();
@@ -167,55 +150,14 @@ string MGCBasic::handleString() {
     return _total;  
 }
 
-string MGCBasic::handleExpression() {
-    setInterpreterState(PARSING);
-    string _total = "";
-    int parCount = 0;
-    do {
-        if (matchToken(lookahead, LPAREN)) {
-            parCount++;
-            _total += curr->str;
-        }
-        if (matchToken(lookahead, RPAREN) && parCount > 1) {
-            _total += curr->str;
-            parCount--;
-        }
-        if (matchToken(lookahead, IDSYM))
-         if (getTypeFromVarname(curr->str) == "nf") {
-                token_error(curr);
-            } else {
-                _total += getValueFromVarname(curr->str) + " ";
-            }
-        if (matchToken(lookahead, NUM))
-            _total += curr->str + " ";
-        if (m_Opers.find(lookahead) != m_Opers.end())
-            _total += curr->str + " ";
-        if (matchToken(lookahead, SEMICOLON) || matchToken(lookahead, THENSYM))
-            break;
-        nexttoken();
-        if (getInterpreterState() == STOPPED)
-            break;
-    } while (!matchToken(lookahead, RPAREN));
-    if (matchToken(lookahead, RPAREN))
-        parCount--;
-    cout<<parCount<<endl;
-    if (parCount != 0) {
-        setInterpreterState(STOPPED);
-        cout<<"Syntax error: unmatched parentheses on line: "<<curr->lineno<<endl;
-        return _total;
-    }
-    return to_string(eval(_total));
-}
-
 typename MGCBasic::TypedValue MGCBasic::handleStatement() {
     setInterpreterState(PARSING);
+    bool isExpr = false;
     string _total = "";
     string type_guess = "num";
-    if (isExpression())
-        return make_pair(type_guess, handleExpression());
-    if (isString())
-        return make_pair("string", handleString());
     while (getInterpreterState() != STOPPED && !matchToken(lookahead, SEMICOLON) && !matchToken(lookahead, THENSYM)) {
+        if (matchToken(lookahead, COMMA))
+            break;
         if (matchToken(lookahead, LPAREN)) {
             _total += " ( ";
         } else if (matchToken(lookahead, RPAREN)) {
@@ -225,6 +167,8 @@ typename MGCBasic::TypedValue MGCBasic::handleStatement() {
             type_guess = "num";
         } else if (matchToken(lookahead, QUOTESYM)) {
             _total = handleString();
+            nexttoken();
+            return make_pair("string", _total);
         } else if (matchToken(lookahead, IDSYM)) {
             if (getTypeFromVarname(curr->str) == "nf") {
                 token_error(curr);
@@ -232,12 +176,15 @@ typename MGCBasic::TypedValue MGCBasic::handleStatement() {
                 _total += getValueFromVarname(curr->str) + " ";
             }
         } else if (m_Opers.find(lookahead) != m_Opers.end()) {
+            isExpr = true;
             _total += curr->str + " ";
         } else {
             token_error(curr);
         }
         nexttoken();
     }
+    if (isExpr) 
+        return make_pair("num", to_string(eval(_total)));
     return make_pair(type_guess, _total);
 }
 
@@ -309,11 +256,17 @@ bool MGCBasic::handleIf() {
 /// Execute print statemets
 void MGCBasic::handlePrint() {
     TypedValue m_value;
+    string _total = "";
     bool isExpression = false;
     if (match(PRINTSYM) || match(PRINTLN)) {
-        m_value = handleStatement();
+        do {
+            if (matchToken(lookahead, COMMA))
+                nexttoken();
+            m_value = handleStatement();
+            _total += m_value.second;
+        } while (matchToken(lookahead, COMMA));
     }
-    cout<<m_value.second;
+    cout<<_total;
 }
 
 /// executes print statement and adds carriage return
@@ -469,10 +422,8 @@ void MGCBasic::handleREPLCode(string& inputline) {
 }
 
 void MGCBasic::interpret(vector<TokenList*>& lines) {
-    bool stepping = false;
     int nextLine = 0;
     bool result = false;
-    bool hasElse = false;
     for(int lp = 0; lp < lines.size(); lp++) {
         TokenList* lineStream = lines[lp];
         if (lp > 0) lookbehind = lines[lp-1]->tok;
@@ -483,6 +434,8 @@ void MGCBasic::interpret(vector<TokenList*>& lines) {
             nexttoken();
         } else {
             cout<<"Error: no line number supplied."<<endl;
+            setInterpreterState(STOPPED);
+            return;
         }
         switch(lookahead) {
             case DIM:

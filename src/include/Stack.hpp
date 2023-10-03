@@ -24,6 +24,20 @@ SOFTWARE.
 #ifndef STACK_HPP
 #define STACK_HPP
 
+/*
+#include <stack>
+using std::stack;
+
+template <class T>
+struct Stack :public stack<T> {
+    T pop() {
+        T ret = stack<T>::top();
+        stack<T>::pop();
+        return ret;
+    }
+};
+*/
+
 template <class T>
 class Stack {
     private:

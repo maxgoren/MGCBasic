@@ -7,6 +7,7 @@
 40 i := i + 1;
 45 j := j + i;
 50 if (c < 100) then
+53 c := j;
 55 println c;
 60 goto 40;
 65 end;

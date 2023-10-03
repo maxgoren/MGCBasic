@@ -42,8 +42,12 @@ pair<int, double> parseNumber(string str, int spos) {
 /// evaluate algebraic expression supplied as string
 /// using dijkstras 2 stack algorithm. supports negative numbers.
 double eval(string expr) {
+    string str;
     setInterpreterState(EXECUTING);
-    string str = "(" + expr + ")";
+    if (expr[1] != '(')
+        str = "(" + expr + ")";
+    else 
+        str = expr;
     char op;
     Stack<double> vals;
     Stack<char> ops;
