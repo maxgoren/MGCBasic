@@ -23,9 +23,10 @@ Token lookahead;
 Token lookbehind;
 bool ready;
 
-/// display error message
+/// display error message && SET INTERNAL STATE TO STOP
 void token_error(TokenList* token) {
     cout<<"Error at line: "<<token->lineno<<" near "<<token->str<<endl;
+    setInterpreterState(STOPPED);
 }
 
 /// advannce stream forward
@@ -35,7 +36,7 @@ void nexttoken() {
         lookahead = curr->tok;
     } else {
         cout<<"Out of tokens."<<endl;
-        exit(0);
+        setInterpreterState(STOPPED);
     }
 }
 
@@ -61,6 +62,7 @@ bool initparser(TokenList* stream) {
     } else {
         cout<<"Error: Bad token stream"<<endl;
         ready = false;
+        setInterpreterState(STOPPED);
     }
     return ready;
 }

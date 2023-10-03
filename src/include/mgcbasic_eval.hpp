@@ -27,6 +27,7 @@ SOFTWARE.
 #include <iostream>
 #include <cmath>
 #include "Stack.hpp"
+#include "mgcbasic_globals.hpp"
 using std::pair;
 using std::make_pair;
 using std::string;
@@ -41,6 +42,7 @@ pair<int, double> parseNumber(string str, int spos) {
 /// evaluate algebraic expression supplied as string
 /// using dijkstras 2 stack algorithm. supports negative numbers.
 double eval(string expr) {
+    setInterpreterState(EXECUTING);
     string str = "(" + expr + ")";
     char op;
     Stack<double> vals;

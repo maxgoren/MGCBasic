@@ -1,3 +1,6 @@
+debug: ./src/mgcbasic.cpp
+	g++ -g -O2 --std=c++14 ./src/mgcbasic.cpp -I ./src/include -o mgcbasic
+
 mgcbasic: ./src/mgcbasic.cpp
 	g++ -O2 --std=c++14 ./src/mgcbasic.cpp -I ./src/include -o mgcbasic
 

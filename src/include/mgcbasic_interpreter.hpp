@@ -43,8 +43,7 @@ class MGCBasic {
     avlmap<int, TokenList*> m_program;
     avlmap<int, string> m_source;
     IterableMap<string, IterableMap<string,string>> m_valueMaps;
-    IterableSet<Token> m_mathOpers;
-    IterableSet<Token> m_relOpers;
+    IterableSet<Token> m_Opers;
     int autoline;
     bool replRunning;
     typedef pair<string, string> TypedValue;
@@ -94,12 +93,13 @@ public:
 };
 
 MGCBasic::MGCBasic() {
-    m_mathOpers.put(MUL);  m_relOpers.put(LT);
-    m_mathOpers.put(ADD);  m_relOpers.put(GT);
-    m_mathOpers.put(SUB);  m_relOpers.put(EQ);
-    m_mathOpers.put(DIV);  m_relOpers.put(NOTEQ);
+    m_Opers.put(MUL);  m_Opers.put(LT);
+    m_Opers.put(ADD);  m_Opers.put(GT);
+    m_Opers.put(SUB);  m_Opers.put(EQ);
+    m_Opers.put(DIV);  m_Opers.put(NOTEQ);
     m_valueMaps.put("num", IterableMap<string,string>());
     m_valueMaps.put("string", IterableMap<string,string>());
+    setInterpreterState(STOPPED);
 }
 
 /// returns the type of supplied variable name
@@ -121,6 +121,7 @@ string& MGCBasic::getValueFromVarname(string& varname) {
 }
 
 bool MGCBasic::assignDataToVarname(string& _id, string& _data, string& type_guess) {
+    setInterpreterState(EXECUTING);
     if (lex.getkeywords().find(_id) != lex.getkeywords().end()) {
         token_error(curr);
         cout<<"Syntax Error: "<<_id<<" is a reserved keyword!"<<endl;
@@ -148,12 +149,13 @@ bool MGCBasic::isString() {
 
 bool MGCBasic::isExpression() {
     for (TokenList* t = curr; t != nullptr; t = t->next)
-        if (m_relOpers.find(t->tok) != m_relOpers.end() || m_mathOpers.find(t->tok) != m_mathOpers.end())
+        if (m_Opers.find(t->tok) != m_Opers.end())
             return true;
     return false;
 }
 
 string MGCBasic::handleString() {
+    setInterpreterState(PARSING);
     string _total = "";
     if (match(QUOTESYM)) {
             nexttoken();
@@ -166,8 +168,9 @@ string MGCBasic::handleString() {
 }
 
 string MGCBasic::handleExpression() {
+    setInterpreterState(PARSING);
     string _total = "";
-    int parCount = 1;
+    int parCount = 0;
     do {
         if (matchToken(lookahead, LPAREN)) {
             parCount++;
@@ -185,24 +188,34 @@ string MGCBasic::handleExpression() {
             }
         if (matchToken(lookahead, NUM))
             _total += curr->str + " ";
-        if (m_mathOpers.find(lookahead) != m_mathOpers.end() || m_relOpers.find(lookahead) != m_relOpers.end())
+        if (m_Opers.find(lookahead) != m_Opers.end())
             _total += curr->str + " ";
         if (matchToken(lookahead, SEMICOLON) || matchToken(lookahead, THENSYM))
             break;
         nexttoken();
-    } while (!matchToken(lookahead, RPAREN) && parCount > 0);
-    cout<<_total<<endl;
-    return _total;
+        if (getInterpreterState() == STOPPED)
+            break;
+    } while (!matchToken(lookahead, RPAREN));
+    if (matchToken(lookahead, RPAREN))
+        parCount--;
+    cout<<parCount<<endl;
+    if (parCount != 0) {
+        setInterpreterState(STOPPED);
+        cout<<"Syntax error: unmatched parentheses on line: "<<curr->lineno<<endl;
+        return _total;
+    }
+    return to_string(eval(_total));
 }
 
 typename MGCBasic::TypedValue MGCBasic::handleStatement() {
+    setInterpreterState(PARSING);
     string _total = "";
     string type_guess = "num";
     if (isExpression())
-        return make_pair(type_guess, to_string(eval(handleExpression())));
+        return make_pair(type_guess, handleExpression());
     if (isString())
         return make_pair("string", handleString());
-    while (!matchToken(lookahead, SEMICOLON) && !matchToken(lookahead, THENSYM)) {
+    while (getInterpreterState() != STOPPED && !matchToken(lookahead, SEMICOLON) && !matchToken(lookahead, THENSYM)) {
         if (matchToken(lookahead, LPAREN)) {
             _total += " ( ";
         } else if (matchToken(lookahead, RPAREN)) {
@@ -218,7 +231,7 @@ typename MGCBasic::TypedValue MGCBasic::handleStatement() {
             } else {
                 _total += getValueFromVarname(curr->str) + " ";
             }
-        } else if (m_mathOpers.find(lookahead) != m_mathOpers.end()) {
+        } else if (m_Opers.find(lookahead) != m_Opers.end()) {
             _total += curr->str + " ";
         } else {
             token_error(curr);
@@ -239,7 +252,9 @@ void MGCBasic::handleIdSym() {
             TypedValue result = handleStatement();
             type_guess = result.first;
             _total = result.second;
-            assignDataToVarname(_id, _total, type_guess);
+            if (getInterpreterState() != STOPPED) {
+                assignDataToVarname(_id, _total, type_guess);
+            }
         }
     }
 }
@@ -252,11 +267,13 @@ void MGCBasic::handleDim() {
             identifier = curr->str;
             nexttoken();
             if (match(AS)) {
+                setInterpreterState(EXECUTING);
                 valuetype = curr->str;
                 //I know this is overkill for a 2-type type system
                 //conversely it makes _adding_ more types a breeze
                 if (m_valueMaps.find(valuetype) == m_valueMaps.end()) {
                     cout<<"Error: uknown type: "<<valuetype<<endl;
+                    setInterpreterState(STOPPED);
                     return;
                 } else {
                     m_valueMaps[valuetype][identifier] = "";
@@ -275,11 +292,9 @@ void MGCBasic::handleDim() {
 
 /// Execute If statements
 bool MGCBasic::handleIf() {
-    bool isExpression = false;
-    int parCount = 0;
-    string _total;
+    setInterpreterState(PARSING);
     if (match(IFSYM)) {
-        if (match(LPAREN)) {
+        if (matchToken(lookahead, LPAREN)) {
             auto tmp = handleStatement();
             return eval(tmp.second);
         } else {
@@ -293,39 +308,12 @@ bool MGCBasic::handleIf() {
 
 /// Execute print statemets
 void MGCBasic::handlePrint() {
-    string m_value;
+    TypedValue m_value;
     bool isExpression = false;
     if (match(PRINTSYM) || match(PRINTLN)) {
-        while (!matchToken(lookahead, SEMICOLON)) {
-            if (matchToken(lookahead, NUM)) {
-                m_value += curr->str + " ";
-                nexttoken();
-            } else if (matchToken(lookahead, QUOTESYM)) {
-                nexttoken();
-                while (curr) {
-                    if (!matchToken(lookahead, COMMA))
-                        m_value += curr->str + " ";
-                    nexttoken();
-                    if (matchToken(lookahead, QUOTESYM)) break;
-                }
-                nexttoken();
-            } else if (matchToken(lookahead, IDSYM)) {
-                m_value += m_valueMaps[getTypeFromVarname(curr->str)][curr->str] + " ";
-                nexttoken();
-            } else if (matchToken(lookahead, COMMA)) {
-                nexttoken();
-            } else if (m_mathOpers.find(lookahead) != m_mathOpers.end()) {
-                isExpression = true;
-                m_value += curr->str + " ";
-                nexttoken();
-            }
-            if (curr == nullptr || matchToken(lookahead, SEMICOLON)) { break; }
-        }
+        m_value = handleStatement();
     }
-    if (isExpression) {
-        m_value = eval(m_value);
-    }
-    cout<<m_value;
+    cout<<m_value.second;
 }
 
 /// executes print statement and adds carriage return
@@ -379,6 +367,7 @@ int MGCBasic::handleFor(vector<TokenList*>& lines, int lp) {
     //and call interpret on that section N times
     //finish number of times.
     if (ready) {
+        setInterpreterState(EXECUTING);
         vector<TokenList*> scope;
         int sl = lp+1;
         while (!(matchToken(lines[sl]->next->tok, NEXTSYM) && varname == lines[sl]->next->next->str)) {
@@ -398,6 +387,7 @@ int MGCBasic::handleFor(vector<TokenList*>& lines, int lp) {
 void MGCBasic::handleInput() {
     match(INPUT);
     if (matchToken(lookahead, IDSYM)) {
+        setInterpreterState(EXECUTING);
         string input;
         getline(cin, input);
         m_valueMaps[getTypeFromVarname(curr->str)][curr->str] = input;
@@ -539,6 +529,8 @@ void MGCBasic::interpret(vector<TokenList*>& lines) {
             default:
                 break;
         }
+        if (getInterpreterState() == STOPPED)
+            break;
     }
 }
 

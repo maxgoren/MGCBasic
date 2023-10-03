@@ -35,6 +35,13 @@ enum Token {
     GOTO, INPUT, ELSESYM, TOSYM, STEP, DIM, AS, STRING, COMMA, PRINTLN, SQUARED
 };
 
+enum State {
+    PARSING,
+    EXECUTING,
+    REPL,
+    STOPPED
+};
+
 template<> struct hashfn<Token> {
     size_t operator()(Token c) {
         return size_t(c);
@@ -47,6 +54,30 @@ vector<string> tokenNames = {
     "WHITESPACE", "QUOTESYM", "SEMICOLON", "IDSYM", "ASSIGNSYM", "TRUESYM", "FALSESYM", 
     "FORSYM", "NEXTSYM", "GOTO", "INPUT", "ELSESYM", "TOSYM", "STEP", "DIM", "AS", 
     "STRING", "COMMA", "PRINTLN", "SQUARED" };
+
+vector<string> stateNames = {
+    "PARSING", "EXECUTING", "STOPPED"
+};
+
+State interpreterState;
+
+
+string getTokenName(Token token) {
+    return tokenNames[token];
+}
+
+State getInterpreterState() {
+    return interpreterState;
+}
+string getStateName(State state) {
+    return stateNames[state];
+}
+
+void setInterpreterState(State state) {
+    interpreterState = state;
+}
+
+
 
 const string m_PROMPT = "mgcb";
 const string m_NAME = "MGCBasic";
