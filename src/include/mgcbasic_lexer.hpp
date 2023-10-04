@@ -67,6 +67,7 @@ void Lexer::initKeywords() {
     keywords["-"] = SUB;
     keywords["*"] = MUL;
     keywords["/"] = DIV;
+    keywords["%"] = MOD;
     keywords["**"] = SQUARED;
     keywords[" "] = WHITESPACE;
     keywords["\t"] = TAB;
@@ -74,8 +75,6 @@ void Lexer::initKeywords() {
     keywords["!="] = NOTEQ;
     keywords[">"] = GT;
     keywords["<"] = LT;
-    keywords[">="] = GTEQ;
-    keywords["<="] = LTEQ;
     keywords[":="] = ASSIGNSYM;
     keywords[","] = COMMA;
     keywords["let"] = LETSYM;
@@ -91,6 +90,7 @@ void Lexer::initKeywords() {
     keywords["true"] = TRUESYM;
     keywords["false"] = FALSESYM;
     keywords["then"] = THENSYM;
+    keywords["else"] = ELSESYM;
     keywords["end"] = ENDSYM;
     keywords["dim"] = DIM;
     keywords["as"] = AS;

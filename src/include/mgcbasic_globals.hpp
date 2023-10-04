@@ -30,7 +30,7 @@ using namespace std;
 
 enum Token {
     ERROR, LPAREN, RPAREN, THENSYM, ENDSYM, LETSYM, IFSYM, PRINTSYM, 
-    NUM, ADD, SUB, MUL, DIV, EQ, NOTEQ, GT, LT, LTEQ, GTEQ, TAB, WHITESPACE,
+    NUM, ADD, SUB, MUL, DIV, MOD, EQ, NOTEQ, GT, LT, TAB, WHITESPACE,
     QUOTESYM, SEMICOLON, IDSYM, ASSIGNSYM, TRUESYM, FALSESYM, FORSYM, NEXTSYM, 
     GOTO, INPUT, ELSESYM, TOSYM, STEP, DIM, AS, STRING, COMMA, PRINTLN, SQUARED
 };
@@ -50,7 +50,7 @@ template<> struct hashfn<Token> {
 
 vector<string> tokenNames = {
     "-error-", "LPAREN", "RPAREN", "THENSYM", "ENDSYM", "LETSYM", "IFSYM", "PRINTSYM", 
-    "NUM", "ADD", "SUB", "MUL", "DIV", "EQ", "NOTEQ", "GT", "LT", "LTEQ", "GTEQ", "TAB", 
+    "NUM", "ADD", "SUB", "MUL", "DIV", "MOD", "EQ", "NOTEQ", "GT", "LT", "TAB", 
     "WHITESPACE", "QUOTESYM", "SEMICOLON", "IDSYM", "ASSIGNSYM", "TRUESYM", "FALSESYM", 
     "FORSYM", "NEXTSYM", "GOTO", "INPUT", "ELSESYM", "TOSYM", "STEP", "DIM", "AS", 
     "STRING", "COMMA", "PRINTLN", "SQUARED" };

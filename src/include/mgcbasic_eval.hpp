@@ -56,6 +56,7 @@ double eval(string expr) {
         } else if (str[i] == '+') ops.push(str[i]);
         else if (str[i] == '*') ops.push(str[i]);
         else if (str[i] == '/') ops.push(str[i]);
+        else if (str[i] == '%') ops.push(str[i]);
         else if (str[i] == '-' && str[i+1] == ' ') ops.push(str[i]);
         else if (str[i] == '=' && str[i+1] == '=') ops.push(str[i]);
         else if (str[i] == '!' && str[i+1] == '=') ops.push(str[i]);

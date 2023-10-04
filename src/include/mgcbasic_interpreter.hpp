@@ -464,11 +464,15 @@ void MGCBasic::interpret(vector<TokenList*>& lines) {
                 result = handleIf();
                 if (result == false) {
                     nextLine = lp;
-                    while (nextLine < lines.size() && !matchToken(lines[nextLine]->next->tok, ENDSYM)) {
+                    while (nextLine < lines.size() && (!matchToken(lines[nextLine]->next->tok, ENDSYM) && !matchToken(lines[nextLine]->next->tok, ELSESYM))) {
                         nextLine++;
                     }
                     lp = nextLine;
                 }
+                break;
+            case ELSESYM:
+                nexttoken();
+                cout<<"Took else route"<<endl;
                 break;
             case GOTO:
                 nexttoken();

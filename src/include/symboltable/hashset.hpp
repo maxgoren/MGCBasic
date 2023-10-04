@@ -1,31 +1,31 @@
 #ifndef iterable_hashset_hpp
 #define iterable_hashset_hpp
-#include "LinkedSet.hpp"
+#include "linkedset.hpp"
 #include "hashfn.hpp"
 
 template <class T, class hasher = hashfn<T>>
 class IterableSet {
     private:
-        LinkedSet<T>* table;
+        linkedset<T>* table;
         int n;
         int maxn;
         void init(int max) {
             maxn = max;
             n = 0;
-            table = new LinkedSet<T>[maxn];
+            table = new linkedset<T>[maxn];
         }
         class Iterator {
             private:
-                LinkedSet<T>* __setPtr;
-                typename LinkedSet<T>::Iterator __setIter;
+                linkedset<T>* __setPtr;
+                typename linkedset<T>::Iterator __setIter;
                 T junk;
             public:
-                Iterator(LinkedSet<T>* __Ptr, T info) {
+                Iterator(linkedset<T>* __Ptr, T info) {
                     __setPtr = __Ptr;
                     __setIter = __Ptr->begin();
                     while (__setIter != __Ptr->end() && *__setIter != info) __setIter++;
                 }
-                Iterator(LinkedSet<T>* __Ptr) {
+                Iterator(linkedset<T>* __Ptr) {
                     __setPtr = __Ptr;
                     while (__setPtr && __setPtr->empty()) {
                         __setPtr++;

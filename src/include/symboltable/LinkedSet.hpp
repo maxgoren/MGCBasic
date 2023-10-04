@@ -2,19 +2,19 @@
 #define LINKED_SET_HPP 
 
 template <class T>
-class LinkedSet;
+class linkedset;
 
 template <class T>
-LinkedSet<T> __setUnion(const LinkedSet<T>& a, const LinkedSet<T>& b);
+linkedset<T> __setUnion(const linkedset<T>& a, const linkedset<T>& b);
 
 template <class T>
-LinkedSet<T> __setDifference(const LinkedSet<T>& a, const LinkedSet<T>& b);
+linkedset<T> __setDifference(const linkedset<T>& a, const linkedset<T>& b);
 
 template <class T>
-LinkedSet<T> __setIntersection(const LinkedSet<T>& a, const LinkedSet<T>& b);
+linkedset<T> __setIntersection(const linkedset<T>& a, const linkedset<T>& b);
 
 template <class T>
-class LinkedSet {
+class linkedset {
     private:
         struct node {
             T info;
@@ -94,15 +94,15 @@ class LinkedSet {
             return find(h->next, key);
         }
     public:
-        LinkedSet() {
+        linkedset() {
             head = nullptr;
             count = 0;
         }
-        LinkedSet(const LinkedSet<T>& oset) {
+        linkedset(const linkedset<T>& oset) {
             for (auto it = oset.begin(); it != oset.end(); it++)
                 add(*it);
         }
-        ~LinkedSet() {
+        ~linkedset() {
             while (head != nullptr) {
                 node* t = head;
                 head = head->next;
@@ -124,13 +124,13 @@ class LinkedSet {
         Iterator find(T key) const {
             return find(head, key);
         }
-        LinkedSet<T> difference(const LinkedSet<T>& oset) {
+        linkedset<T> difference(const linkedset<T>& oset) {
             return __setDifference(*this, oset);
         }
-        LinkedSet<T> setunion(const LinkedSet<T>& oset) {
+        linkedset<T> setunion(const linkedset<T>& oset) {
             return __setUnion(*this, oset);
         }
-        LinkedSet<T> intersection(const LinkedSet<T>& oset) {
+        linkedset<T> intersection(const linkedset<T>& oset) {
             return __setIntersection(*this, oset);
         }
         Iterator begin() const {
@@ -139,7 +139,7 @@ class LinkedSet {
         Iterator end() const {
             return Iterator(nullptr);
         }
-        LinkedSet operator=(const LinkedSet<T>& oset) {
+        linkedset operator=(const linkedset<T>& oset) {
             for (auto it = oset.begin(); it != oset.end(); it++)
                 add(*it);
             return *this;
@@ -148,8 +148,8 @@ class LinkedSet {
 
 
 template <class T>
-LinkedSet<T> __setUnion(const LinkedSet<T>& aSet, const LinkedSet<T>& bSet) {
-    LinkedSet<T> setU;
+linkedset<T> __setUnion(const linkedset<T>& aSet, const linkedset<T>& bSet) {
+    linkedset<T> setU;
     for (auto it = aSet.begin(); it != aSet.end(); it++)
         setU.add(*it);
     for (auto it = bSet.begin(); it != bSet.end(); it++)
@@ -158,9 +158,9 @@ LinkedSet<T> __setUnion(const LinkedSet<T>& aSet, const LinkedSet<T>& bSet) {
 }
 
 template <class T>
-LinkedSet<T> __setDifference(const LinkedSet<T>& aSet, const LinkedSet<T>& bSet) {
-    LinkedSet<T> setD;
-    LinkedSet<T> *a, *b;
+linkedset<T> __setDifference(const linkedset<T>& aSet, const linkedset<T>& bSet) {
+    linkedset<T> setD;
+    linkedset<T> *a, *b;
     for (auto it = aSet.begin(); it != aSet.end(); it++) {
         if (bSet.find(*it) == bSet.end()) {
             setD.add(*it);
@@ -175,8 +175,8 @@ LinkedSet<T> __setDifference(const LinkedSet<T>& aSet, const LinkedSet<T>& bSet)
 }
 
 template <class T>
-LinkedSet<T> __setIntersection(const LinkedSet<T>& aSet, const LinkedSet<T>& bSet) {
-    LinkedSet<T> setI;
+linkedset<T> __setIntersection(const linkedset<T>& aSet, const linkedset<T>& bSet) {
+    linkedset<T> setI;
     for (auto it = aSet.begin(); it != aSet.end(); it++) {
         if (bSet.find(*it) != bSet.end()) {
             setI.add(*it);
